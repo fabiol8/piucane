@@ -1,0 +1,87 @@
+# OWASP ZAP Rules Configuration for PiùCane
+# Format: RULE_ID	THRESHOLD	DESCRIPTION
+
+# Ignore rules that are false positives for our stack
+10021	IGNORE	X-Content-Type-Options Header Missing (handled by Next.js)
+10020	IGNORE	X-Frame-Options Header Not Set (handled by CSP)
+10016	IGNORE	Web Browser XSS Protection Not Enabled (modern browsers)
+
+# Content Security Policy
+10038	MEDIUM	Content Security Policy (CSP) Header Not Set
+10055	LOW	CSP: Wildcard Directive
+10056	LOW	CSP: unsafe-inline
+
+# Authentication and Session Management
+10040	HIGH	Secure Cookie Not Set
+10041	MEDIUM	HTTP Only Cookie Not Set
+10054	MEDIUM	Cookie Without SameSite Attribute
+
+# Information Disclosure
+10037	LOW	Server Leaks Information via "X-Powered-By" HTTP Response Header
+10036	LOW	Server Leaks Version Information via "Server" HTTP Response Header
+10035	LOW	Strict-Transport-Security Header Not Set
+
+# Injection Vulnerabilities
+40018	HIGH	SQL Injection
+40019	HIGH	SQL Injection - PostgreSQL
+40020	HIGH	SQL Injection - Oracle
+40021	HIGH	SQL Injection - MySQL
+40022	HIGH	SQL Injection - Hypersonic SQL
+40024	HIGH	SQL Injection - SQLite
+
+# Cross-Site Scripting
+40012	HIGH	Cross Site Scripting (Reflected)
+40013	HIGH	Cross Site Scripting (Persistent)
+40014	HIGH	Cross Site Scripting (Persistent) - Prime
+40016	HIGH	Cross Site Scripting (Persistent) - Spider
+40017	HIGH	Cross Site Scripting (Persistent) - OData
+
+# Authentication Bypass
+10105	HIGH	Weak Authentication Method
+90022	HIGH	Application Error Disclosure
+
+# API Security
+10109	MEDIUM	Modern Web Application
+90029	MEDIUM	HTTPS Content Available via HTTP
+90033	MEDIUM	Loosely Scoped Cookie
+
+# Firebase specific rules (custom)
+# Ignore Firebase SDK related warnings
+90034	IGNORE	Cloud Metadata Potentially Exposed (Firebase expected)
+10015	IGNORE	Incomplete or No Cache-control and Pragma HTTP Header Set (Firebase hosting handles caching)
+
+# Next.js specific ignores
+10049	IGNORE	Non-Storable Content (API routes expected)
+10010	IGNORE	Cookie No HttpOnly Flag (Next.js auth cookies)
+
+# GDPR/Privacy related (high priority)
+10048	HIGH	Remote Code Execution - Shell Injection
+10095	HIGH	Backup File Disclosure
+10096	HIGH	Timestamp Disclosure
+10097	HIGH	Hash Disclosure
+
+# Rate limiting and DoS
+10110	MEDIUM	Dangerous JS Functions
+90020	MEDIUM	Missing Anti-clickjacking Header
+
+# Custom business logic rules
+# Stripe webhook validation
+CUSTOM_001	HIGH	Stripe webhook signature validation bypass
+CUSTOM_002	HIGH	AI agent rate limit bypass
+CUSTOM_003	MEDIUM	Dog profile access control bypass
+CUSTOM_004	MEDIUM	Subscription manipulation
+CUSTOM_005	HIGH	Admin panel unauthorized access
+
+# Firebase security rules validation
+CUSTOM_006	HIGH	Firestore rules bypass attempt
+CUSTOM_007	HIGH	Storage rules bypass attempt
+CUSTOM_008	MEDIUM	Authentication state manipulation
+
+# CTA tracking and analytics
+CUSTOM_009	LOW	Analytics manipulation
+CUSTOM_010	LOW	CTA tracking bypass
+
+# AI safety and content filtering
+CUSTOM_011	HIGH	AI prompt injection attempt
+CUSTOM_012	MEDIUM	Content policy violation
+CUSTOM_013	MEDIUM	AI response manipulation

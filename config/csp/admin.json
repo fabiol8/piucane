@@ -1,0 +1,32 @@
+{
+  "default-src": ["'self'"],
+  "script-src": [
+    "'self'",
+    "'unsafe-inline'",
+    "'unsafe-eval'"
+  ],
+  "style-src": [
+    "'self'",
+    "'unsafe-inline'",
+    "https://fonts.googleapis.com"
+  ],
+  "font-src": [
+    "'self'",
+    "https://fonts.gstatic.com"
+  ],
+  "img-src": [
+    "'self'",
+    "data:",
+    "https:",
+    "https://storage.googleapis.com",
+    "https://firebasestorage.googleapis.com"
+  ],
+  "connect-src": [
+    "'self'",
+    "https://api.piucane.it"
+  ],
+  "frame-src": ["'none'"],
+  "object-src": ["'none'"],
+  "base-uri": ["'self'"],
+  "form-action": ["'self'"]
+}

@@ -1,0 +1,79 @@
+{
+  "name": "piucane-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PiuCane - Il benessere del tuo cane",
+  "keywords": ["ecommerce", "pets", "dogs", "nutrition", "pwa"],
+  "author": "PiuCane Team",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*",
+    "api",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:admin\" \"npm run dev:api\"",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:admin": "cd apps/admin && npm run dev",
+    "dev:api": "cd api && npm run dev",
+    "build": "npm run build:packages && npm run build:apps && npm run build:api",
+    "build:packages": "npm run build:ui && npm run build:lib",
+    "build:ui": "cd packages/ui && npm run build",
+    "build:lib": "cd packages/lib && npm run build",
+    "build:apps": "npm run build:web && npm run build:admin",
+    "build:web": "cd apps/web && npm run build",
+    "build:admin": "cd apps/admin && npm run build",
+    "build:api": "cd api && npm run build",
+    "start": "concurrently \"npm run start:web\" \"npm run start:admin\" \"npm run start:api\"",
+    "start:web": "cd apps/web && npm start",
+    "start:admin": "cd apps/admin && npm start",
+    "start:api": "cd api && npm start",
+    "test": "npm run test:packages && npm run test:apps && npm run test:api",
+    "test:packages": "cd packages/ui && npm test && cd ../lib && npm test",
+    "test:apps": "cd apps/web && npm test && cd ../admin && npm test",
+    "test:api": "cd api && npm test",
+    "test:e2e": "cd apps/web && npm run test:e2e",
+    "lint": "npm run lint:apps && npm run lint:api && npm run lint:packages",
+    "lint:apps": "cd apps/web && npm run lint && cd ../admin && npm run lint",
+    "lint:api": "cd api && npm run lint",
+    "lint:packages": "cd packages/ui && npm run lint && cd ../lib && npm run lint",
+    "type-check": "npm run type-check:apps && npm run type-check:api && npm run type-check:packages",
+    "type-check:apps": "cd apps/web && npm run type-check && cd ../admin && npm run type-check",
+    "type-check:api": "cd api && npm run type-check",
+    "type-check:packages": "cd packages/ui && npm run type-check && cd ../lib && npm run type-check",
+    "clean": "npm run clean:apps && npm run clean:api && npm run clean:packages",
+    "clean:apps": "cd apps/web && rm -rf .next dist && cd ../admin && rm -rf .next dist",
+    "clean:api": "cd api && rm -rf dist",
+    "clean:packages": "cd packages/ui && rm -rf dist && cd ../lib && rm -rf dist",
+    "firebase:emulators": "firebase emulators:start",
+    "firebase:deploy:staging": "firebase deploy --only hosting:staging",
+    "firebase:deploy:prod": "firebase deploy --only hosting:production"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{md,json}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/piucane/piucane.git"
+  },
+  "bugs": {
+    "url": "https://github.com/piucane/piucane/issues"
+  },
+  "homepage": "https://piucane.it"
+}

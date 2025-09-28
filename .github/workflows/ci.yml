@@ -1,0 +1,341 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Quality Gates
+  quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npm run type-check
+
+      - name: Lint check
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build check
+        run: npm run build
+
+  # Security & Accessibility
+  security-a11y:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate
+
+      - name: Build for testing
+        run: npm run build
+
+      - name: Accessibility tests
+        run: npm run test:a11y
+
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './lighthouse.config.js'
+          uploadArtifacts: true
+
+  # CTA & GA4 Validation
+  cta-ga4-validation:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate CTA Registry
+        run: npm run validate:cta
+
+      - name: Validate GA4 Schema
+        run: npm run validate:ga4
+
+      - name: Check CTA Coverage
+        run: npm run check:cta-coverage
+
+  # End-to-End Tests
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: [quality-checks, security-a11y]
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install ${{ matrix.browser }}
+
+      - name: Run E2E tests
+        run: npm run test:e2e:${{ matrix.browser }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+
+  # Firebase Rules Tests
+  firebase-rules:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Test Firestore Rules
+        run: firebase emulators:exec --only firestore "npm run test:firestore-rules"
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - name: Test Storage Rules
+        run: firebase emulators:exec --only storage "npm run test:storage-rules"
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+  # Preview Deployment (PR only)
+  preview-deploy:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [quality-checks, security-a11y, cta-ga4-validation]
+    environment: preview
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build apps
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID_PREVIEW }}
+          NEXT_PUBLIC_GA4_ID: ${{ secrets.GA4_ID_PREVIEW }}
+
+      - name: Deploy to Firebase Preview
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PREVIEW }}
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID_PREVIEW }}
+          channelId: pr-${{ github.event.number }}
+
+  # Staging Deployment
+  staging-deploy:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    needs: [quality-checks, security-a11y, cta-ga4-validation, e2e-tests, firebase-rules]
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build apps
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID_STAGING }}
+          NEXT_PUBLIC_GA4_ID: ${{ secrets.GA4_ID_STAGING }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY_TEST }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Deploy to Firebase Staging
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID_STAGING }}
+          target: staging
+
+      - name: Deploy Functions
+        run: firebase deploy --only functions --project ${{ secrets.FIREBASE_PROJECT_ID_STAGING }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Run staging tests
+        run: npm run test:staging
+        env:
+          STAGING_URL: https://piucane-staging.web.app
+
+  # Production Deployment
+  production-deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [quality-checks, security-a11y, cta-ga4-validation, e2e-tests, firebase-rules]
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build apps
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID_PROD }}
+          NEXT_PUBLIC_GA4_ID: ${{ secrets.GA4_ID_PROD }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY_LIVE }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Deploy to Firebase Production
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
+          projectId: ${{ secrets.FIREBASE_PROJECT_ID_PROD }}
+          target: production
+
+      - name: Deploy Functions
+        run: firebase deploy --only functions --project ${{ secrets.FIREBASE_PROJECT_ID_PROD }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Generate release notes
+        run: npm run release:notes
+
+      - name: Update documentation
+        run: npm run docs:update
+
+      - name: Health check
+        run: npm run health:check
+        env:
+          PRODUCTION_URL: https://app.piucane.it
+
+  # Documentation Update
+  docs-update:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: production-deploy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API docs
+        run: npm run docs:api
+
+      - name: Update doc indices
+        run: npm run docs:index
+
+      - name: Deploy docs
+        run: firebase deploy --only hosting:docs --project ${{ secrets.FIREBASE_PROJECT_ID_PROD }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+  # Security Scan
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: OWASP ZAP Baseline Scan
+        if: github.ref == 'refs/heads/develop'
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'https://piucane-staging.web.app'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'

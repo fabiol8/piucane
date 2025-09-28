@@ -1,0 +1,293 @@
+{
+  "conditions": [
+    {
+      "name": "ios_en",
+      "expression": "device.os == 'ios' && device.country in ['US', 'GB']",
+      "tagColor": "BLUE"
+    },
+    {
+      "name": "android_en",
+      "expression": "device.os == 'android' && device.country in ['US', 'GB']",
+      "tagColor": "GREEN"
+    },
+    {
+      "name": "web_users",
+      "expression": "device.os == 'web'",
+      "tagColor": "ORANGE"
+    },
+    {
+      "name": "premium_users",
+      "expression": "user.userProperty['subscription_tier'] == 'premium'",
+      "tagColor": "PURPLE"
+    },
+    {
+      "name": "beta_users",
+      "expression": "user.inRandomPercentile <= 10",
+      "tagColor": "PINK"
+    }
+  ],
+  "parameters": {
+    "ai_agent_rate_limit": {
+      "defaultValue": {
+        "value": "10"
+      },
+      "description": "Maximum AI requests per hour for free users",
+      "valueType": "NUMBER"
+    },
+    "ai_agent_rate_limit_premium": {
+      "defaultValue": {
+        "value": "100"
+      },
+      "conditionalValues": {
+        "premium_users": {
+          "value": "100"
+        }
+      },
+      "description": "Maximum AI requests per hour for premium users",
+      "valueType": "NUMBER"
+    },
+    "enable_gamification": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Enable gamification features (missions, badges, rewards)",
+      "valueType": "BOOLEAN"
+    },
+    "enable_ai_vet": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Enable AI Veterinarian agent",
+      "valueType": "BOOLEAN"
+    },
+    "enable_ai_educator": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Enable AI Dog Educator agent",
+      "valueType": "BOOLEAN"
+    },
+    "enable_ai_groomer": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Enable AI Groomer agent",
+      "valueType": "BOOLEAN"
+    },
+    "subscription_trial_days": {
+      "defaultValue": {
+        "value": "7"
+      },
+      "description": "Free trial days for new subscriptions",
+      "valueType": "NUMBER"
+    },
+    "min_order_free_shipping": {
+      "defaultValue": {
+        "value": "49.99"
+      },
+      "description": "Minimum order amount for free shipping",
+      "valueType": "NUMBER"
+    },
+    "maintenance_mode": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Enable maintenance mode",
+      "valueType": "BOOLEAN"
+    },
+    "maintenance_message": {
+      "defaultValue": {
+        "value": "Stiamo lavorando per migliorare la tua esperienza. Torna presto!"
+      },
+      "description": "Message shown during maintenance",
+      "valueType": "STRING"
+    },
+    "feature_flags": {
+      "defaultValue": {
+        "value": "{\"newCheckout\": false, \"socialLogin\": true, \"darkMode\": false, \"advancedSearch\": true}"
+      },
+      "conditionalValues": {
+        "beta_users": {
+          "value": "{\"newCheckout\": true, \"socialLogin\": true, \"darkMode\": true, \"advancedSearch\": true}"
+        }
+      },
+      "description": "Feature flags configuration",
+      "valueType": "JSON"
+    },
+    "app_version_min": {
+      "defaultValue": {
+        "value": "1.0.0"
+      },
+      "description": "Minimum required app version",
+      "valueType": "STRING"
+    },
+    "app_version_recommended": {
+      "defaultValue": {
+        "value": "1.2.0"
+      },
+      "description": "Recommended app version",
+      "valueType": "STRING"
+    },
+    "api_timeout_ms": {
+      "defaultValue": {
+        "value": "30000"
+      },
+      "description": "API request timeout in milliseconds",
+      "valueType": "NUMBER"
+    },
+    "max_upload_size_mb": {
+      "defaultValue": {
+        "value": "10"
+      },
+      "conditionalValues": {
+        "premium_users": {
+          "value": "25"
+        }
+      },
+      "description": "Maximum file upload size in MB",
+      "valueType": "NUMBER"
+    },
+    "cta_tracking_sample_rate": {
+      "defaultValue": {
+        "value": "1.0"
+      },
+      "description": "Sample rate for CTA tracking (0.0 to 1.0)",
+      "valueType": "NUMBER"
+    },
+    "analytics_debug_mode": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "beta_users": {
+          "value": "true"
+        }
+      },
+      "description": "Enable analytics debug mode",
+      "valueType": "BOOLEAN"
+    },
+    "push_notification_quiet_hours": {
+      "defaultValue": {
+        "value": "{\"start\": \"22:00\", \"end\": \"08:00\"}"
+      },
+      "description": "Quiet hours for push notifications",
+      "valueType": "JSON"
+    },
+    "emergency_contact_info": {
+      "defaultValue": {
+        "value": "{\"phone\": \"+39 123 456 7890\", \"email\": \"emergenze@piucane.it\"}"
+      },
+      "description": "Emergency contact information",
+      "valueType": "JSON"
+    },
+    "warehouse_locations": {
+      "defaultValue": {
+        "value": "[\"Milano\", \"Roma\", \"Napoli\"]"
+      },
+      "description": "Available warehouse locations",
+      "valueType": "JSON"
+    },
+    "supported_payment_methods": {
+      "defaultValue": {
+        "value": "[\"card\", \"paypal\", \"apple_pay\", \"google_pay\"]"
+      },
+      "description": "Supported payment methods",
+      "valueType": "JSON"
+    },
+    "subscription_cadences": {
+      "defaultValue": {
+        "value": "[7, 14, 21, 28, 30]"
+      },
+      "description": "Available subscription delivery cadences in days",
+      "valueType": "JSON"
+    },
+    "mission_daily_limit": {
+      "defaultValue": {
+        "value": "3"
+      },
+      "description": "Maximum daily missions per user",
+      "valueType": "NUMBER"
+    },
+    "reward_points_ratio": {
+      "defaultValue": {
+        "value": "100"
+      },
+      "description": "Points needed per 1 euro reward value",
+      "valueType": "NUMBER"
+    },
+    "vaccine_reminder_days": {
+      "defaultValue": {
+        "value": "[30, 7, 1]"
+      },
+      "description": "Days before vaccine due date to send reminders",
+      "valueType": "JSON"
+    },
+    "ai_safety_keywords": {
+      "defaultValue": {
+        "value": "[\"emergenza\", \"dispnea\", \"collasso\", \"convulsioni\", \"sangue\"]"
+      },
+      "description": "Keywords that trigger AI safety warnings",
+      "valueType": "JSON"
+    }
+  },
+  "parameterGroups": [
+    {
+      "groupId": "ai_configuration",
+      "description": "AI agents configuration and limits",
+      "parameters": [
+        "ai_agent_rate_limit",
+        "ai_agent_rate_limit_premium",
+        "enable_ai_vet",
+        "enable_ai_educator",
+        "enable_ai_groomer",
+        "ai_safety_keywords"
+      ]
+    },
+    {
+      "groupId": "feature_toggles",
+      "description": "Feature flags and toggles",
+      "parameters": [
+        "enable_gamification",
+        "feature_flags",
+        "analytics_debug_mode"
+      ]
+    },
+    {
+      "groupId": "business_rules",
+      "description": "Business logic configuration",
+      "parameters": [
+        "subscription_trial_days",
+        "min_order_free_shipping",
+        "subscription_cadences",
+        "reward_points_ratio"
+      ]
+    },
+    {
+      "groupId": "technical_limits",
+      "description": "Technical limits and timeouts",
+      "parameters": [
+        "api_timeout_ms",
+        "max_upload_size_mb",
+        "mission_daily_limit"
+      ]
+    },
+    {
+      "groupId": "maintenance",
+      "description": "Maintenance and emergency configuration",
+      "parameters": [
+        "maintenance_mode",
+        "maintenance_message",
+        "emergency_contact_info"
+      ]
+    }
+  ],
+  "version": {
+    "versionNumber": "1",
+    "updateTime": "2024-01-01T00:00:00Z",
+    "updateUser": {
+      "email": "admin@piucane.it"
+    },
+    "updateOrigin": "ADMIN_SDK_NODE",
+    "updateType": "INCREMENTAL_UPDATE"
+  }
+}

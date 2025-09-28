@@ -1,0 +1,174 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // User profile images - only owner can read/write
+    match /users/{userId}/profile/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Dog photos - only owner can read/write
+    match /dogs/{dogId}/photos/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/dogs/$(dogId)).data.ownerId == request.auth.uid;
+    }
+
+    // Dog vaccination documents - only owner can read/write
+    match /dogs/{dogId}/vaccinations/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/dogs/$(dogId)).data.ownerId == request.auth.uid;
+    }
+
+    // Product images - public read, admin write
+    match /products/{productId}/images/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Category images - public read, admin write
+    match /categories/{categoryId}/images/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Mission images - authenticated read, admin write
+    match /missions/{missionId}/images/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Badge images - authenticated read, admin write
+    match /badges/{badgeId}/images/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Reward images - authenticated read, admin write
+    match /rewards/{rewardId}/images/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Message attachments - sender can write, recipient can read
+    match /messages/{messageId}/attachments/{allPaths=**} {
+      allow read: if request.auth != null &&
+        (firestore.get(/databases/(default)/documents/messages/$(messageId)).data.userId == request.auth.uid ||
+         firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow write: if request.auth != null;
+    }
+
+    // Email templates assets - admin only
+    match /email-templates/{templateId}/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Warehouse documents - admin only
+    match /warehouse/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Temp uploads - authenticated users for 1 hour max
+    match /temp/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        request.auth.uid == userId &&
+        request.time < resource.timeCreated + duration.value(1, 'h');
+    }
+
+    // System assets (logos, icons, etc.) - public read, admin write
+    match /assets/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Export files - admin only
+    match /exports/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Backup files - admin only
+    match /backups/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Logs and analytics files - admin only
+    match /logs/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // AI conversation exports - user's own data
+    match /ai-exports/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // File validation functions
+    function isValidImageFile() {
+      return resource.contentType.matches('image/.*') &&
+             resource.size < 10 * 1024 * 1024; // 10MB max
+    }
+
+    function isValidDocumentFile() {
+      return resource.contentType in ['application/pdf', 'image/jpeg', 'image/png'] &&
+             resource.size < 25 * 1024 * 1024; // 25MB max
+    }
+
+    function isValidUploadSize() {
+      return resource.size < 50 * 1024 * 1024; // 50MB max for general uploads
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isDogOwner(dogId) {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/dogs/$(dogId)).data.ownerId == request.auth.uid;
+    }
+
+    // Enhanced rules with file type validation
+    match /users/{userId}/profile/avatar {
+      allow read, write: if isOwner(userId) && isValidImageFile();
+    }
+
+    match /dogs/{dogId}/photos/{fileName} {
+      allow read, write: if isDogOwner(dogId) && isValidImageFile();
+    }
+
+    match /dogs/{dogId}/vaccinations/{fileName} {
+      allow read, write: if isDogOwner(dogId) && isValidDocumentFile();
+    }
+
+    // Rate limiting for uploads (pseudo-implementation via metadata)
+    match /users/{userId}/uploads/{fileName} {
+      allow write: if isOwner(userId) &&
+                     isValidUploadSize() &&
+                     resource.metadata != null &&
+                     resource.metadata['upload-limit-check'] == 'passed';
+    }
+
+    // Quarantine folder for suspicious uploads - admin only
+    match /quarantine/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // CDN cache folder - system only (no user access)
+    match /cdn/{allPaths=**} {
+      allow read, write: if false; // System-only access
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "development": [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001"
+  ],
+  "staging": [
+    "https://app-staging.piucane.it",
+    "https://admin-staging.piucane.it"
+  ],
+  "production": [
+    "https://app.piucane.it",
+    "https://admin.piucane.it"
+  ]
+}

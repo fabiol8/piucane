@@ -1,0 +1,249 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - self access only
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // User profiles - self access only
+    match /userProfiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Dogs collection - owner access only
+    match /dogs/{dogId} {
+      allow read, write: if request.auth != null &&
+        request.auth.uid == resource.data.ownerId;
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.ownerId;
+    }
+
+    // Veterinarians - read by all authenticated users, write by admin
+    match /veterinarians/{vetId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Vaccinations - owner of dog only
+    match /vaccinations/{vaccinationId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/dogs/$(resource.data.dogId)).data.ownerId == request.auth.uid;
+      allow create: if request.auth != null &&
+        get(/databases/$(database)/documents/dogs/$(request.resource.data.dogId)).data.ownerId == request.auth.uid;
+    }
+
+    // Products - read by all, write by admin
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Categories - read by all, write by admin
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Orders - user's own orders or admin
+    match /orders/{orderId} {
+      allow read, write: if request.auth != null &&
+        (request.auth.uid == resource.data.userId ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+    }
+
+    // Subscriptions - user's own subscriptions or admin
+    match /subscriptions/{subscriptionId} {
+      allow read, write: if request.auth != null &&
+        (request.auth.uid == resource.data.userId ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+    }
+
+    // Gamification - user's own data
+    match /userProgress/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /userMissions/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /userBadges/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /userRewards/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Missions, badges, rewards - read by all authenticated, write by admin
+    match /missions/{missionId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /badges/{badgeId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /rewards/{rewardId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // AI Conversations - user's own conversations
+    match /aiConversations/{conversationId} {
+      allow read, write: if request.auth != null &&
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+    }
+
+    // AI Usage tracking - user's own usage
+    match /aiUsage/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Messages - user's own messages or admin
+    match /messages/{messageId} {
+      allow read, write: if request.auth != null &&
+        (request.auth.uid == resource.data.userId ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow create: if request.auth != null;
+    }
+
+    // Message inbox - user's own inbox
+    match /messageInbox/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // CRM data - admin only
+    match /customerSegments/{segmentId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /customerJourney/{journeyId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Warehouse - admin only
+    match /inventory/{itemId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /lots/{lotId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /pickTasks/{taskId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /warehouseLocations/{locationId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Analytics and tracking - admin only
+    match /analytics/{document=**} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /ctaTracking/{document=**} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if request.auth != null;
+    }
+
+    // Form schemas - read by all authenticated, write by admin
+    match /formSchemas/{schemaId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Onboarding flow - read by all authenticated, write by admin
+    match /onboardingFlow/{flowId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // System settings and configuration - admin only
+    match /systemSettings/{settingId} {
+      allow read, write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Audit logs - admin only
+    match /auditLogs/{logId} {
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if request.auth != null;
+    }
+
+    // Helper functions
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isDogOwner(dogId) {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/dogs/$(dogId)).data.ownerId == request.auth.uid;
+    }
+
+    // Rate limiting for AI usage
+    match /rateLimits/{userId} {
+      allow read, write: if request.auth != null &&
+        (request.auth.uid == userId || isAdmin());
+    }
+
+    // GDPR and privacy compliance
+    match /dataProcessing/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /consentManagement/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Error logging and monitoring
+    match /errorLogs/{logId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+    }
+
+    // Performance monitoring
+    match /performanceMetrics/{metricId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2024-01-01T00:00:00.000Z",
+  "containerVersion": {
+    "name": "PiuCane GTM Container",
+    "container": {
+      "name": "PiuCane",
+      "domainName": ["app.piucane.it"],
+      "publicId": "GTM-XXXXXXX",
+      "usageContext": ["WEB"]
+    },
+    "tag": [
+      {
+        "name": "GA4 Configuration",
+        "type": "gaawc",
+        "parameter": [
+          {
+            "key": "measurementId",
+            "value": "{{GA4 Measurement ID}}"
+          },
+          {
+            "key": "enableConsentMode",
+            "value": true
+          }
+        ],
+        "firingTriggerId": ["2147479553"]
+      },
+      {
+        "name": "GA4 Event - CTA Click",
+        "type": "gaawe",
+        "parameter": [
+          {
+            "key": "eventName",
+            "value": "cta_click"
+          },
+          {
+            "key": "eventParameters",
+            "list": [
+              {
+                "map": [
+                  {
+                    "key": "parameter_name",
+                    "value": "cta_id"
+                  },
+                  {
+                    "key": "value",
+                    "value": "{{CTA ID}}"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "firingTriggerId": ["{{CTA Click Trigger}}"]
+      }
+    ],
+    "trigger": [
+      {
+        "name": "All Pages",
+        "type": "PAGEVIEW"
+      },
+      {
+        "name": "CTA Click",
+        "type": "CLICK",
+        "filter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              {
+                "key": "arg0",
+                "value": "{{Click Element}}"
+              },
+              {
+                "key": "arg1",
+                "value": "data-cta-id"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "name": "GA4 Measurement ID",
+        "type": "c",
+        "parameter": [
+          {
+            "key": "value",
+            "value": "G-XXXXXXXXXX"
+          }
+        ]
+      },
+      {
+        "name": "CTA ID",
+        "type": "jsm",
+        "parameter": [
+          {
+            "key": "javascript",
+            "value": "function() {\n  return {{Click Element}}.getAttribute('data-cta-id');\n}"
+          }
+        ]
+      }
+    ]
+  }
+}

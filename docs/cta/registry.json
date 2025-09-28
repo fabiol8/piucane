@@ -1,0 +1,364 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-01T00:00:00Z",
+  "description": "Registry completo di tutti i CTA presenti nell'applicazione PiùCane",
+  "cta": {
+    "onboarding": {
+      "onboarding-start": {
+        "id": "onboarding-start",
+        "description": "Inizio processo di onboarding",
+        "location": "Landing page",
+        "component": "HeroSection",
+        "ga4Event": "onboarding_started",
+        "priority": "high"
+      },
+      "onboarding-next-step": {
+        "id": "onboarding-next-step",
+        "description": "Prossimo step nell'onboarding",
+        "location": "Onboarding flow",
+        "component": "StepNavigation",
+        "ga4Event": "onboarding_step_completed",
+        "priority": "high"
+      },
+      "onboarding-complete": {
+        "id": "onboarding-complete",
+        "description": "Completamento onboarding",
+        "location": "Onboarding final step",
+        "component": "CompletionScreen",
+        "ga4Event": "onboarding_completed",
+        "priority": "critical"
+      }
+    },
+    "dogs": {
+      "add-dog": {
+        "id": "add-dog",
+        "description": "Aggiungi nuovo cane",
+        "location": "Dogs dashboard",
+        "component": "AddDogButton",
+        "ga4Event": "dog_add_started",
+        "priority": "high"
+      },
+      "dog-profile-save": {
+        "id": "dog-profile-save",
+        "description": "Salva profilo cane",
+        "location": "Dog profile form",
+        "component": "SaveButton",
+        "ga4Event": "dog_profile_saved",
+        "priority": "high"
+      },
+      "vaccination-add": {
+        "id": "vaccination-add",
+        "description": "Aggiungi vaccinazione",
+        "location": "Dog profile",
+        "component": "VaccinationForm",
+        "ga4Event": "vaccination_added",
+        "priority": "medium"
+      },
+      "vet-select": {
+        "id": "vet-select",
+        "description": "Seleziona veterinario",
+        "location": "Dog profile",
+        "component": "VetSelector",
+        "ga4Event": "veterinarian_selected",
+        "priority": "medium"
+      }
+    },
+    "ecommerce": {
+      "product-view": {
+        "id": "product-view",
+        "description": "Visualizza prodotto",
+        "location": "Product listing",
+        "component": "ProductCard",
+        "ga4Event": "view_item",
+        "priority": "medium"
+      },
+      "add-to-cart": {
+        "id": "add-to-cart",
+        "description": "Aggiungi al carrello",
+        "location": "Product page",
+        "component": "AddToCartButton",
+        "ga4Event": "add_to_cart",
+        "priority": "high"
+      },
+      "cart-view": {
+        "id": "cart-view",
+        "description": "Visualizza carrello",
+        "location": "Header/Navigation",
+        "component": "CartIcon",
+        "ga4Event": "view_cart",
+        "priority": "medium"
+      },
+      "checkout-start": {
+        "id": "checkout-start",
+        "description": "Inizia checkout",
+        "location": "Cart page",
+        "component": "CheckoutButton",
+        "ga4Event": "begin_checkout",
+        "priority": "critical"
+      },
+      "checkout-complete": {
+        "id": "checkout-complete",
+        "description": "Completa acquisto",
+        "location": "Checkout page",
+        "component": "PaymentForm",
+        "ga4Event": "purchase",
+        "priority": "critical"
+      }
+    },
+    "subscriptions": {
+      "subscription-start": {
+        "id": "subscription-start",
+        "description": "Inizia abbonamento",
+        "location": "Subscription page",
+        "component": "SubscriptionCard",
+        "ga4Event": "subscription_started",
+        "priority": "critical"
+      },
+      "subscription-manage": {
+        "id": "subscription-manage",
+        "description": "Gestisci abbonamento",
+        "location": "Account page",
+        "component": "SubscriptionManager",
+        "ga4Event": "subscription_manage_clicked",
+        "priority": "medium"
+      },
+      "subscription-pause": {
+        "id": "subscription-pause",
+        "description": "Pausa abbonamento",
+        "location": "Subscription management",
+        "component": "PauseButton",
+        "ga4Event": "subscription_paused",
+        "priority": "medium"
+      },
+      "subscription-cancel": {
+        "id": "subscription-cancel",
+        "description": "Cancella abbonamento",
+        "location": "Subscription management",
+        "component": "CancelButton",
+        "ga4Event": "subscription_cancelled",
+        "priority": "high"
+      }
+    },
+    "gamification": {
+      "mission-start": {
+        "id": "mission-start",
+        "description": "Inizia missione",
+        "location": "Missions page",
+        "component": "MissionCard",
+        "ga4Event": "mission_started",
+        "priority": "medium"
+      },
+      "mission-complete": {
+        "id": "mission-complete",
+        "description": "Completa missione",
+        "location": "Mission tracking",
+        "component": "CompleteButton",
+        "ga4Event": "mission_completed",
+        "priority": "medium"
+      },
+      "badge-claim": {
+        "id": "badge-claim",
+        "description": "Riscatta badge",
+        "location": "Achievements page",
+        "component": "BadgeCard",
+        "ga4Event": "badge_claimed",
+        "priority": "low"
+      },
+      "reward-redeem": {
+        "id": "reward-redeem",
+        "description": "Riscatta ricompensa",
+        "location": "Rewards page",
+        "component": "RewardCard",
+        "ga4Event": "reward_redeemed",
+        "priority": "medium"
+      }
+    },
+    "ai": {
+      "ai-chat-start": {
+        "id": "ai-chat-start",
+        "description": "Inizia chat con AI",
+        "location": "AI page",
+        "component": "AgentSelector",
+        "ga4Event": "ai_chat_started",
+        "priority": "high"
+      },
+      "ai-vet-select": {
+        "id": "ai-vet-select",
+        "description": "Seleziona AI Veterinario",
+        "location": "AI page",
+        "component": "VetAgentCard",
+        "ga4Event": "ai_vet_selected",
+        "priority": "high"
+      },
+      "ai-educator-select": {
+        "id": "ai-educator-select",
+        "description": "Seleziona AI Educatore",
+        "location": "AI page",
+        "component": "EducatorAgentCard",
+        "ga4Event": "ai_educator_selected",
+        "priority": "high"
+      },
+      "ai-groomer-select": {
+        "id": "ai-groomer-select",
+        "description": "Seleziona AI Groomer",
+        "location": "AI page",
+        "component": "GroomerAgentCard",
+        "ga4Event": "ai_groomer_selected",
+        "priority": "high"
+      },
+      "ai-message-send": {
+        "id": "ai-message-send",
+        "description": "Invia messaggio all'AI",
+        "location": "AI chat",
+        "component": "MessageInput",
+        "ga4Event": "ai_message_sent",
+        "priority": "medium"
+      }
+    },
+    "auth": {
+      "login-start": {
+        "id": "login-start",
+        "description": "Inizia login",
+        "location": "Login page",
+        "component": "LoginForm",
+        "ga4Event": "login_started",
+        "priority": "high"
+      },
+      "login-google": {
+        "id": "login-google",
+        "description": "Login con Google",
+        "location": "Login page",
+        "component": "GoogleAuthButton",
+        "ga4Event": "login_google",
+        "priority": "medium"
+      },
+      "register-start": {
+        "id": "register-start",
+        "description": "Inizia registrazione",
+        "location": "Register page",
+        "component": "RegisterForm",
+        "ga4Event": "register_started",
+        "priority": "high"
+      },
+      "logout": {
+        "id": "logout",
+        "description": "Logout utente",
+        "location": "User menu",
+        "component": "LogoutButton",
+        "ga4Event": "logout",
+        "priority": "low"
+      }
+    },
+    "navigation": {
+      "nav-home": {
+        "id": "nav-home",
+        "description": "Navigazione home",
+        "location": "Main navigation",
+        "component": "NavigationMenu",
+        "ga4Event": "nav_home_clicked",
+        "priority": "low"
+      },
+      "nav-dogs": {
+        "id": "nav-dogs",
+        "description": "Navigazione cani",
+        "location": "Main navigation",
+        "component": "NavigationMenu",
+        "ga4Event": "nav_dogs_clicked",
+        "priority": "low"
+      },
+      "nav-shop": {
+        "id": "nav-shop",
+        "description": "Navigazione shop",
+        "location": "Main navigation",
+        "component": "NavigationMenu",
+        "ga4Event": "nav_shop_clicked",
+        "priority": "medium"
+      },
+      "nav-missions": {
+        "id": "nav-missions",
+        "description": "Navigazione missioni",
+        "location": "Main navigation",
+        "component": "NavigationMenu",
+        "ga4Event": "nav_missions_clicked",
+        "priority": "low"
+      },
+      "nav-ai": {
+        "id": "nav-ai",
+        "description": "Navigazione AI",
+        "location": "Main navigation",
+        "component": "NavigationMenu",
+        "ga4Event": "nav_ai_clicked",
+        "priority": "medium"
+      }
+    },
+    "admin": {
+      "admin-login": {
+        "id": "admin-login",
+        "description": "Login admin",
+        "location": "Admin login page",
+        "component": "AdminLoginForm",
+        "ga4Event": "admin_login",
+        "priority": "critical"
+      },
+      "admin-product-create": {
+        "id": "admin-product-create",
+        "description": "Crea prodotto (admin)",
+        "location": "Admin products",
+        "component": "ProductForm",
+        "ga4Event": "admin_product_created",
+        "priority": "medium"
+      },
+      "admin-user-manage": {
+        "id": "admin-user-manage",
+        "description": "Gestisci utente (admin)",
+        "location": "Admin users",
+        "component": "UserManager",
+        "ga4Event": "admin_user_managed",
+        "priority": "medium"
+      },
+      "admin-analytics-view": {
+        "id": "admin-analytics-view",
+        "description": "Visualizza analytics (admin)",
+        "location": "Admin dashboard",
+        "component": "AnalyticsDashboard",
+        "ga4Event": "admin_analytics_viewed",
+        "priority": "low"
+      }
+    }
+  },
+  "categories": {
+    "critical": {
+      "description": "CTA che influenzano direttamente la conversione o il revenue",
+      "examples": ["onboarding-complete", "checkout-complete", "subscription-start"]
+    },
+    "high": {
+      "description": "CTA importanti per l'engagement e la user experience",
+      "examples": ["add-to-cart", "ai-chat-start", "login-start"]
+    },
+    "medium": {
+      "description": "CTA che supportano l'engagement e le funzionalità secondarie",
+      "examples": ["product-view", "mission-start", "subscription-manage"]
+    },
+    "low": {
+      "description": "CTA di navigazione e funzionalità accessorie",
+      "examples": ["nav-home", "badge-claim", "logout"]
+    }
+  },
+  "validation": {
+    "rules": [
+      "Ogni CTA deve avere un ID univoco",
+      "Ogni CTA deve essere mappato a un evento GA4",
+      "I CTA critical e high devono essere testati in E2E",
+      "Tutti i CTA devono avere tracking implementato",
+      "I CTA devono essere accessibili (WCAG 2.2 AA)"
+    ],
+    "required_fields": ["id", "description", "location", "component", "ga4Event", "priority"],
+    "priority_levels": ["critical", "high", "medium", "low"]
+  },
+  "implementation": {
+    "tracking_attribute": "data-cta-id",
+    "ga4_parameter": "cta_id",
+    "validation_script": "npm run validate:cta",
+    "coverage_requirement": "100%"
+  }
+}
