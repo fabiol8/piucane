@@ -79,10 +79,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/piucane/piucane.git"
+    "url": "https://github.com/fabiol8/piucane.git"
   },
   "bugs": {
-    "url": "https://github.com/piucane/piucane/issues"
+    "url": "https://github.com/fabiol8/piucane/issues"
   },
   "homepage": "https://piucane.it"
 }
