@@ -1,241 +1,483 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button, Card } from '@piucane/ui';
-import { trackEvent } from '@/analytics/ga4';
-import Link from 'next/link';
+/**
+ * Pagina di Conferma Ordine - Esperienza Post-Acquisto PiùCane
+ * Con tracking, raccomandazioni follow-up e engagement
+ */
 
-interface OrderData {
-  id: string;
-  status: string;
-  totalAmount: number;
-  createdAt: string;
+import React, { useEffect, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Check, Package, Truck, Calendar, Heart, Share2, Download, MessageCircle, Star } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { trackCTA } from '@/analytics/ga4'
+
+interface OrderDetails {
+  id: string
+  date: string
+  status: 'confirmed' | 'processing' | 'shipped' | 'delivered'
   items: Array<{
-    productId: string;
-    productName: string;
-    quantity: number;
-    price: number;
-  }>;
+    productId: string
+    name: string
+    image: string
+    quantity: number
+    price: number
+  }>
+  total: number
+  estimatedDelivery: string
+  trackingNumber?: string
+  loyaltyPointsEarned: number
 }
 
-export default function CheckoutSuccessPage() {
-  const [order, setOrder] = useState<OrderData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export default function OrderSuccessPage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null)
+  const [showConfetti, setShowConfetti] = useState(true)
+  const [feedbackStep, setFeedbackStep] = useState(0)
+
+  const orderId = searchParams.get('order')
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session_id');
-
-    if (sessionId) {
-      fetchOrderData(sessionId);
-    } else {
-      setIsLoading(false);
+    if (!orderId) {
+      router.push('/shop')
+      return
     }
-  }, []);
 
-  const fetchOrderData = async (sessionId: string) => {
-    try {
-      const response = await fetch(`/api/checkout/session/${sessionId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setOrder(data.order);
+    // Track successful purchase
+    trackCTA({
+      ctaId: 'checkout.success.viewed',
+      event: 'purchase_complete',
+      value: 'success_page_loaded',
+      metadata: { orderId }
+    })
 
-        // Track purchase event
-        trackEvent('purchase', {
-          transaction_id: data.order.id,
-          currency: 'EUR',
-          value: data.order.totalAmount,
-          items: data.order.items?.map((item: any) => ({
-            item_id: item.productId,
-            item_name: item.productName,
-            price: item.price,
-            quantity: item.quantity
-          })) || []
-        });
+    // Simula caricamento dettagli ordine
+    loadOrderDetails(orderId)
+
+    // Nascondi confetti dopo 3 secondi
+    const timer = setTimeout(() => setShowConfetti(false), 3000)
+    return () => clearTimeout(timer)
+  }, [orderId])
+
+  const loadOrderDetails = async (id: string) => {
+    // Simula chiamata API
+    const mockOrder: OrderDetails = {
+      id: id,
+      date: new Date().toISOString(),
+      status: 'confirmed',
+      items: [
+        {
+          productId: 'piucane-adult-chicken-rice',
+          name: 'PiùCane Adult Pollo e Riso',
+          image: '/products/piucane-adult-chicken-rice.jpg',
+          quantity: 2,
+          price: 29.90
+        }
+      ],
+      total: 59.80,
+      estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+      loyaltyPointsEarned: 598
+    }
+
+    setOrderDetails(mockOrder)
+  }
+
+  const shareOrder = async () => {
+    trackCTA({
+      ctaId: 'order.success.shared',
+      event: 'share',
+      value: 'order_shared',
+      metadata: { orderId, platform: 'native' }
+    })
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Ho appena ordinato da PiùCane!',
+          text: 'Prodotti premium per il benessere del mio cane 🐕',
+          url: window.location.origin
+        })
+      } catch (error) {
+        // Fallback per condivisione manuale
+        navigator.clipboard.writeText(`Ho appena ordinato da PiùCane! ${window.location.origin}`)
+        alert('Link copiato negli appunti!')
       }
-    } catch (error) {
-      console.error('Error fetching order data:', error);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }
 
-  if (isLoading) {
+  const downloadInvoice = () => {
+    trackCTA({
+      ctaId: 'order.invoice.downloaded',
+      event: 'download',
+      value: 'invoice',
+      metadata: { orderId }
+    })
+
+    // Simula download fattura
+    alert('Fattura scaricata! (funzionalità simulata)')
+  }
+
+  const startChat = () => {
+    trackCTA({
+      ctaId: 'order.support.chat',
+      event: 'contact_support',
+      value: 'chat_opened',
+      metadata: { orderId, source: 'success_page' }
+    })
+
+    router.push('/chat?context=order_support&orderId=' + orderId)
+  }
+
+  const submitFeedback = (rating: number) => {
+    trackCTA({
+      ctaId: 'order.feedback.submitted',
+      event: 'feedback',
+      value: 'experience_rating',
+      metadata: { orderId, rating, step: feedbackStep }
+    })
+
+    if (feedbackStep === 0) {
+      setFeedbackStep(1)
+    } else {
+      alert('Grazie per il tuo feedback!')
+      setFeedbackStep(2)
+    }
+  }
+
+  const continueshopping = () => {
+    trackCTA({
+      ctaId: 'order.success.continue_shopping',
+      event: 'navigation',
+      value: 'continue_shopping',
+      metadata: { orderId }
+    })
+
+    router.push('/shop')
+  }
+
+  if (!orderDetails) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-center">
-          <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-48 mx-auto"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-piucane-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Caricamento dettagli ordine...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto">
-          <Card className="text-center py-12">
-            {/* Success Icon */}
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-3xl">✅</span>
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Confetti Effect */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <div className="confetti-animation">
+            {/* CSS animation per confetti */}
+          </div>
+        </div>
+      )}
 
-            {/* Success Message */}
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Ordine completato con successo!
-            </h1>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Success Header */}
+        <div className="text-center mb-8">
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <Check className="h-8 w-8 text-green-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Ordine Confermato!</h1>
+          <p className="text-lg text-gray-600 mb-4">
+            Grazie per aver scelto PiùCane per il benessere del tuo cane
+          </p>
+          <p className="text-sm text-gray-500">
+            Ordine #{orderDetails.id} • {new Date(orderDetails.date).toLocaleDateString('it-IT')}
+          </p>
+        </div>
 
-            <p className="text-lg text-gray-600 mb-8">
-              Grazie per il tuo acquisto. Riceverai una email di conferma a breve.
-            </p>
-
-            {/* Order Details */}
-            {order && (
-              <div className="bg-gray-50 rounded-lg p-6 mb-8 text-left">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Dettagli ordine
-                </h2>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Numero ordine:</span>
-                    <span className="font-medium">#{order.id.slice(-8).toUpperCase()}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Order Details */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Order Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Stato dell'Ordine
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Ordine Confermato</p>
+                      <p className="text-sm text-gray-600">Stiamo preparando i tuoi prodotti</p>
+                    </div>
                   </div>
+                  <span className="text-sm text-gray-500">Ora</span>
+                </div>
 
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Data ordine:</span>
-                    <span className="font-medium">
-                      {new Date(order.createdAt).toLocaleDateString('it-IT')}
-                    </span>
+                <div className="flex items-center justify-between mb-4 opacity-60">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <Package className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">In Preparazione</p>
+                      <p className="text-sm text-gray-600">I prodotti vengono imballati</p>
+                    </div>
                   </div>
+                  <span className="text-sm text-gray-500">1-2 giorni</span>
+                </div>
 
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Totale:</span>
-                    <span className="font-semibold text-lg">€{order.totalAmount.toFixed(2)}</span>
+                <div className="flex items-center justify-between opacity-60">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <Truck className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Spedito</p>
+                      <p className="text-sm text-gray-600">In viaggio verso di te</p>
+                    </div>
                   </div>
+                  <span className="text-sm text-gray-500">3-5 giorni</span>
+                </div>
+              </CardContent>
+            </Card>
 
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Stato:</span>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                      Confermato
-                    </span>
+            {/* Order Items */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Prodotti Ordinati</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {orderDetails.items.map((item, index) => (
+                    <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 rounded object-cover"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900">{item.name}</h4>
+                        <p className="text-sm text-gray-600">Quantità: {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-gray-900">€{(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <div className="flex justify-between font-medium text-lg">
+                    <span>Totale Ordine</span>
+                    <span>€{orderDetails.total.toFixed(2)}</span>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+
+            {/* Delivery Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Informazioni di Consegna
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Consegna stimata</p>
+                    <p className="font-medium text-gray-900">
+                      {new Date(orderDetails.estimatedDelivery).toLocaleDateString('it-IT', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+
+                  {orderDetails.trackingNumber && (
+                    <div>
+                      <p className="text-sm text-gray-600">Numero di tracciamento</p>
+                      <p className="font-medium text-gray-900">{orderDetails.trackingNumber}</p>
+                    </div>
+                  )}
+
+                  <div className="pt-3 border-t border-gray-200">
+                    <p className="text-sm text-gray-600 mb-2">Ti invieremo aggiornamenti via email e notifiche push</p>
+                    <Button variant="outline" size="sm">
+                      <Truck className="h-4 w-4 mr-2" />
+                      Traccia Spedizione
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Experience Feedback */}
+            {feedbackStep < 2 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Come è stata la tua esperienza di acquisto?</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {feedbackStep === 0 ? (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-4">Valuta la facilità di ordinazione</p>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((rating) => (
+                          <button
+                            key={rating}
+                            onClick={() => submitFeedback(rating)}
+                            className="p-2 rounded hover:bg-gray-100"
+                          >
+                            <Star className="h-6 w-6 text-yellow-400 fill-current" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-4">Quanto consiglieresti PiùCane?</p>
+                      <div className="grid grid-cols-5 gap-2">
+                        {[1, 2, 3, 4, 5].map((rating) => (
+                          <button
+                            key={rating}
+                            onClick={() => submitFeedback(rating)}
+                            className="p-3 text-center border rounded hover:bg-piucane-light"
+                          >
+                            {rating}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Azioni Rapide</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button onClick={downloadInvoice} variant="outline" className="w-full justify-start">
+                  <Download className="h-4 w-4 mr-2" />
+                  Scarica Fattura
+                </Button>
+
+                <Button onClick={shareOrder} variant="outline" className="w-full justify-start">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Condividi Acquisto
+                </Button>
+
+                <Button onClick={startChat} variant="outline" className="w-full justify-start">
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Contatta Supporto
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Loyalty Points */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="h-5 w-5 text-piucane-primary" />
+                  Punti Fedeltà
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-piucane-primary mb-2">
+                    +{orderDetails.loyaltyPointsEarned}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">Punti guadagnati con questo ordine</p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Vedi Ricompense
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Next Steps */}
-            <div className="bg-blue-50 rounded-lg p-6 mb-8 text-left">
-              <h3 className="font-semibold text-gray-900 mb-3">Prossimi passi:</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-start space-x-2">
-                  <span className="text-blue-600 mt-1">📧</span>
-                  <span>Riceverai una email di conferma con i dettagli dell'ordine</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-blue-600 mt-1">📦</span>
-                  <span>I tuoi prodotti verranno preparati e spediti entro 24-48 ore</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-blue-600 mt-1">🚚</span>
-                  <span>Riceverai il numero di tracciamento per seguire la spedizione</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-blue-600 mt-1">🎁</span>
-                  <span>Hai guadagnato punti fedeltà per questo acquisto!</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Link href="/orders" className="block">
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    data-cta-id="checkout_success.view_orders.click"
-                  >
-                    📋 Visualizza i tuoi ordini
-                  </Button>
-                </Link>
-
-                <Link href="/shop" className="block">
-                  <Button
-                    className="w-full"
-                    data-cta-id="checkout_success.continue_shopping.click"
-                  >
-                    🛒 Continua lo shopping
-                  </Button>
-                </Link>
-              </div>
-
-              <Link href="/dogs" className="block">
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  data-cta-id="checkout_success.manage_dogs.click"
-                >
-                  🐕 Gestisci i profili dei tuoi cani
-                </Button>
-              </Link>
-            </div>
-
-            {/* Support */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-3">
-                Hai domande sul tuo ordine?
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Link href="/support" className="text-orange-600 hover:text-orange-800 text-sm">
-                  📞 Contatta il supporto
-                </Link>
-                <Link href="/faq" className="text-orange-600 hover:text-orange-800 text-sm">
-                  ❓ FAQ
-                </Link>
-              </div>
-            </div>
-          </Card>
-
-          {/* Recommended Products */}
-          <Card className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Ti potrebbero interessare anche
-            </h2>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {/* Mock recommended products */}
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="text-center">
-                  <div className="aspect-square bg-gray-100 rounded-lg mb-2">
-                    <img
-                      src={`/api/placeholder/150/150`}
-                      alt={`Prodotto ${i}`}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
+            <Card>
+              <CardHeader>
+                <CardTitle>Prossimi Passi</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-sm space-y-2">
+                  <div className="flex items-start gap-2">
+                    <div className="w-2 h-2 bg-piucane-primary rounded-full mt-2"></div>
+                    <p>Riceverai una email di conferma entro 5 minuti</p>
                   </div>
-                  <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
-                    Prodotto consigliato {i}
-                  </h3>
-                  <p className="text-sm text-orange-600 font-semibold">€19.99</p>
+                  <div className="flex items-start gap-2">
+                    <div className="w-2 h-2 bg-gray-300 rounded-full mt-2"></div>
+                    <p>Ti invieremo il tracking quando spediremo</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-2 h-2 bg-gray-300 rounded-full mt-2"></div>
+                    <p>Prepareremo un piano alimentare personalizzato</p>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="text-center mt-6">
-              <Link href="/shop">
-                <Button
-                  variant="secondary"
-                  data-cta-id="checkout_success.view_all_products.click"
-                >
-                  Vedi tutti i prodotti
+                <Button onClick={continueShop} className="w-full mt-4">
+                  Continua lo Shopping
                 </Button>
-              </Link>
-            </div>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Social Proof */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-2">Ti sei unito a</p>
+                  <p className="text-2xl font-bold text-piucane-primary mb-2">15,000+</p>
+                  <p className="text-sm text-gray-600">proprietari di cani felici</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Thank You Message */}
+        <div className="mt-12 text-center bg-piucane-light rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Grazie per aver scelto PiùCane!</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            La nostra missione è supportare la salute e la felicità del tuo cane.
+            Il nostro team di esperti è sempre disponibile per consigli personalizzati
+            e supporto durante tutto il percorso del tuo amico a quattro zampe.
+          </p>
         </div>
       </div>
+
+      <style jsx>{`
+        .confetti-animation {
+          background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24);
+          background-size: 400% 400%;
+          animation: confetti-fall 3s ease-out;
+        }
+
+        @keyframes confetti-fall {
+          0% {
+            opacity: 1;
+            transform: translateY(-100vh) rotate(0deg);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(100vh) rotate(720deg);
+          }
+        }
+      `}</style>
     </div>
-  );
+  )
 }

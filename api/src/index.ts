@@ -11,6 +11,8 @@ import { authMiddleware } from './middleware/auth';
 
 // Routes
 import authRoutes from './modules/auth/routes';
+import petsRoutes from './routes/pets';
+import commerceRoutes from './routes/commerce';
 import ecommerceRoutes from './modules/ecommerce/routes';
 import subscriptionsRoutes from './modules/subscriptions/routes';
 import crmRoutes from './modules/crm/routes';
@@ -18,6 +20,10 @@ import healthRoutes from './modules/health/routes';
 import aiRoutes from './modules/ai/routes';
 import messagingRoutes from './modules/messaging/routes';
 import warehouseRoutes from './modules/warehouse/routes';
+import paymentsRoutes from './modules/payments/routes';
+import recommendationsRoutes from './modules/ai-recommendations/routes';
+import analyticsRoutes from './modules/analytics/routes';
+import performanceRoutes from './modules/performance/routes';
 
 dotenv.config();
 
@@ -62,6 +68,8 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/pets', petsRoutes);
+app.use('/api/commerce', commerceRoutes);
 app.use('/api/ecommerce', ecommerceRoutes);
 app.use('/api/subscriptions', subscriptionsRoutes);
 app.use('/api/crm', crmRoutes);
@@ -69,6 +77,10 @@ app.use('/api/health', healthRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/messaging', messagingRoutes);
 app.use('/api/warehouse', warehouseRoutes);
+app.use('/api/payments', paymentsRoutes);
+app.use('/api/recommendations', recommendationsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/performance', performanceRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -78,8 +90,10 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-app.listen(PORT, () => {
-  logger.info(`PiuCane API server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info(`PiuCane API server running on port ${PORT}`);
+  });
+}
 
 export default app;

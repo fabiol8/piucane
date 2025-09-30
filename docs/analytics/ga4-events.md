@@ -21,10 +21,37 @@ Questo documento descrive tutti gli eventi GA4 implementati nell'applicazione Pi
 | `onboarding_started` | `onboarding-start` | Inizio processo onboarding | `user_id`, `cta_id` |
 | `onboarding_step_completed` | `onboarding-next-step` | Step onboarding completato | `step_number`, `step_name`, `cta_id` |
 | `onboarding_completed` | `onboarding-complete` | Onboarding completato | `user_id`, `completion_time`, `cta_id` |
-| `login_started` | `login-start` | Inizio processo login | `method`, `cta_id` |
-| `login_google` | `login-google` | Login con Google | `cta_id` |
-| `register_started` | `register-start` | Inizio registrazione | `method`, `cta_id` |
-| `logout` | `logout` | Logout utente | `session_duration`, `cta_id` |
+| `sign_up` | `auth.register.button.click` | Registrazione utente | `method`, `user_id`, `cta_id` |
+| `login` | `auth.login.button.click` | Login utente | `method`, `user_id`, `cta_id` |
+| `logout` | `auth.logout.button.click` | Logout utente | `user_id`, `session_duration`, `cta_id` |
+
+### 👤 User Management Events
+
+| Evento GA4 | CTA ID | Descrizione | Parametri |
+|------------|--------|-------------|-----------|
+| `profile_edit_start` | `user.profile.edit.start` | Inizio modifica profilo | `section`, `user_id`, `cta_id` |
+| `profile_update` | `user.profile.save` | Aggiornamento profilo | `fields_updated`, `user_id`, `cta_id` |
+| `gdpr_consent_update` | `user.gdpr.consent.update` | Aggiornamento consensi GDPR | `consent_types`, `granted`, `user_id`, `cta_id` |
+| `gdpr_data_export` | `user.gdpr.export.request` | Richiesta export dati GDPR | `export_format`, `data_types`, `user_id`, `cta_id` |
+| `account_delete_intent` | `user.account.delete.request` | Intenzione eliminazione account | `user_id`, `reason`, `feedback`, `cta_id` |
+| `user_profile_view` | `user.profile.view` | Visualizzazione profilo utente | `user_id`, `profile_section`, `cta_id` |
+| `profile_photo_upload` | `user.profile.photo.upload` | Upload foto profilo | `file_size`, `file_type`, `user_id`, `cta_id` |
+| `preferences_update` | `user.preferences.update` | Aggiornamento preferenze utente | `preference_type`, `new_value`, `user_id`, `cta_id` |
+| `notification_settings_update` | `user.notifications.update` | Aggiornamento impostazioni notifiche | `notification_types`, `enabled`, `user_id`, `cta_id` |
+| `language_change` | `user.language.change` | Cambio lingua interfaccia | `from_language`, `to_language`, `user_id`, `cta_id` |
+| `gdpr_consent_view` | `user.gdpr.consent.view` | Visualizzazione pannello consensi | `user_id`, `cta_id` |
+| `gdpr_data_export_request` | `user.gdpr.export.request` | Richiesta export dati GDPR | `export_format`, `data_types`, `user_id`, `cta_id` |
+| `gdpr_data_export_download` | `user.gdpr.export.download` | Download dati esportati | `file_size`, `export_id`, `user_id`, `cta_id` |
+| `account_delete_request` | `user.account.delete.request` | Richiesta eliminazione account | `user_id`, `reason`, `feedback`, `cta_id` |
+| `account_delete_confirm` | `user.account.delete.confirm` | Conferma eliminazione account | `user_id`, `verification_method`, `cta_id` |
+| `account_delete_cancel` | `user.account.delete.cancel` | Annullamento eliminazione account | `user_id`, `step`, `cta_id` |
+| `password_change_request` | `user.password.change.request` | Richiesta cambio password | `user_id`, `trigger_source`, `cta_id` |
+| `password_change_success` | `user.password.change.success` | Cambio password completato | `user_id`, `cta_id` |
+| `email_change_request` | `user.email.change.request` | Richiesta cambio email | `user_id`, `new_email_domain`, `cta_id` |
+| `email_verification_sent` | `user.email.verification.sent` | Invio email di verifica | `user_id`, `email_type`, `cta_id` |
+| `email_verification_success` | `user.email.verification.success` | Verifica email completata | `user_id`, `verification_token`, `cta_id` |
+| `two_factor_enable` | `user.2fa.enable` | Attivazione autenticazione a due fattori | `user_id`, `method`, `cta_id` |
+| `two_factor_disable` | `user.2fa.disable` | Disattivazione autenticazione a due fattori | `user_id`, `reason`, `cta_id` |
 
 ### 🐕 Dog Management Events
 
@@ -40,10 +67,21 @@ Questo documento descrive tutti gli eventi GA4 implementati nell'applicazione Pi
 | Evento GA4 | CTA ID | Descrizione | Parametri Standard |
 |------------|--------|-------------|-------------------|
 | `view_item` | `product-view` | Visualizzazione prodotto | `item_id`, `item_name`, `item_category`, `value`, `currency` |
-| `add_to_cart` | `add-to-cart` | Aggiunta al carrello | `item_id`, `item_name`, `quantity`, `value`, `currency` |
+| `add_to_cart` | `cart.item.added` | Aggiunta al carrello | `item_id`, `item_name`, `quantity`, `value`, `currency` |
 | `view_cart` | `cart-view` | Visualizzazione carrello | `value`, `currency`, `items` |
-| `begin_checkout` | `checkout-start` | Inizio checkout | `value`, `currency`, `items`, `coupon` |
-| `purchase` | `checkout-complete` | Acquisto completato | `transaction_id`, `value`, `currency`, `items`, `shipping` |
+| `begin_checkout` | `checkout.started` | Inizio checkout | `value`, `currency`, `items`, `coupon` |
+| `checkout_step` | `checkout.step.next` | Avanzamento step checkout | `from_step`, `to_step`, `step_id` |
+| `purchase` | `checkout.order.submitted` | Acquisto completato | `transaction_id`, `value`, `currency`, `items`, `shipping` |
+
+### 🧺 Cart Events
+
+| Evento GA4 | CTA ID | Descrizione | Parametri |
+|------------|--------|-------------|-----------|
+| `cart_update` | `cart.quantity.updated` | Quantità articolo aggiornata | `product_id`, `new_quantity` |
+| `remove_from_cart` | `cart.item.removed` | Articolo rimosso dal carrello | `product_id`, `format_id` |
+| `cart_clear` | `cart.cleared` | Carrello svuotato | `previous_item_count` |
+| `subscription_change` | `cart.subscription.updated` | Frequenza abbonamento modificata | `product_id`, `subscription_frequency` |
+| `dosage_personalized` | `cart.dosage.updated` | Dosaggio personalizzato | `product_id`, `daily_amount`, `duration_days` |
 
 ### 🔄 Subscription Events
 
@@ -77,11 +115,14 @@ Questo documento descrive tutti gli eventi GA4 implementati nell'applicazione Pi
 
 | Evento GA4 | CTA ID | Descrizione | Parametri |
 |------------|--------|-------------|-----------|
-| `nav_home_clicked` | `nav-home` | Navigazione home | `source_page`, `cta_id` |
-| `nav_dogs_clicked` | `nav-dogs` | Navigazione cani | `source_page`, `cta_id` |
-| `nav_shop_clicked` | `nav-shop` | Navigazione shop | `source_page`, `cta_id` |
-| `nav_missions_clicked` | `nav-missions` | Navigazione missioni | `source_page`, `cta_id` |
-| `nav_ai_clicked` | `nav-ai` | Navigazione AI | `source_page`, `cta_id` |
+| `navigation_click` | `home.header.login.click` | CTA login header | `link_text`, `source_page` |
+| `navigation_click` | `home.hero.start.click` | CTA inizia onboarding | `link_text`, `source_page` |
+| `navigation_click` | `home.hero.demo.click` | CTA guarda demo | `link_text`, `source_page` |
+| `navigation_click` | `home.nav.ai_chat.click` | Nav AI Chat | `link_text`, `section`, `link_url` |
+| `navigation_click` | `home.nav.missions.click` | Nav Missioni | `link_text`, `section`, `link_url` |
+| `navigation_click` | `home.nav.shop.click` | Nav Shop | `link_text`, `section`, `link_url` |
+| `navigation_click` | `home.nav.account.click` | Nav Account | `link_text`, `section`, `link_url` |
+| `navigation_click` | `home.header.settings.click` | Menu impostazioni rapido | `link_text`, `source_page` |
 
 ### 🔧 Admin Events
 

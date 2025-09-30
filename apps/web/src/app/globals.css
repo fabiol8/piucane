@@ -1,35 +1,368 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/**
+ * PiuCane Global Styles
+ * Design System conforme al PROMPTMASTER.md
+ *
+ * Colori del brand:
+ * - Verde: #9ACD32 (YellowGreen)
+ * - Arancione: #FFA500 (Orange)
+ * - Bianco: #FFFFFF
+ * - Testo scuro: #2F4F2F (DarkOliveGreen)
+ */
 
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Variabili CSS per coerenza del design system */
+:root {
+  --primary-green: #9ACD32;
+  --primary-orange: #FFA500;
+  --accent-white: #FFFFFF;
+  --text-dark: #2F4F2F;
+  --text-secondary: #6B7280;
+  --bg-light: #F8F9FA;
+  --bg-gradient-start: #F0F9FF;
+  --bg-gradient-end: #FEF3C7;
+  --border-color: #E5E7EB;
+  --success-green: #10B981;
+  --error-red: #EF4444;
+  --warning-yellow: #F59E0B;
+  --info-blue: #3B82F6;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* Reset e base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  color: var(--text-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tailwind customizations */
 @layer base {
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
+  .border-primary-green {
+    border-color: var(--primary-green);
   }
 
-  body {
-    @apply bg-gray-50 text-gray-900;
+  .bg-primary-green {
+    background-color: var(--primary-green);
+  }
+
+  .text-primary-green {
+    color: var(--primary-green);
   }
 }
 
-@layer components {
-  .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200;
+/* Utility classes specifiche per PiuCane */
+.text-primary {
+  color: var(--primary-green);
+}
+
+.text-primary-orange {
+  color: var(--primary-orange);
+}
+
+.bg-primary {
+  background-color: var(--primary-green);
+}
+
+.bg-primary-orange {
+  background-color: var(--primary-orange);
+}
+
+.border-primary {
+  border-color: var(--primary-green);
+}
+
+/* Gradients del brand */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary-green), var(--primary-orange));
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #F3F4F6;
+  border-top: 2px solid var(--primary-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus styles per accessibilità WCAG 2.2 AA */
+*:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus\\:ring-primary:focus,
+.focus-visible:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  border-radius: 2px;
+}
+
+/* High contrast focus for better accessibility */
+@media (prefers-contrast: high) {
+  .focus-visible:focus-visible {
+    box-shadow: 0 0 0 3px #000000;
+    outline: 2px solid #ffffff;
+  }
+}
+
+/* Skip links */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Enhanced touch targets for mobile */
+@media (max-width: 768px) {
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-green: #2D5016;
+    --primary-orange: #B8860B;
+    --text-dark: #000000;
+    --border-color: #000000;
   }
 
-  .btn-primary {
-    @apply btn bg-brand-primary text-white hover:bg-orange-600 focus:ring-brand-primary;
+  .border {
+    border-width: 2px;
+  }
+}
+
+/* Forced colors mode (Windows High Contrast) */
+@media (forced-colors: active) {
+  .forced-colors-adjust-none {
+    forced-color-adjust: none;
   }
 
-  .btn-secondary {
-    @apply btn bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+  button,
+  [role="button"] {
+    border: 1px solid ButtonText;
   }
 
-  .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  .sr-only {
+    forced-color-adjust: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-gradient-start: #1F2937;
+    --bg-gradient-end: #374151;
+    --text-dark: #F9FAFB;
+    --bg-light: #374151;
+    --border-color: #4B5563;
   }
 
-  .form-input {
-    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm;
+  body {
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-dark);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-green);
+}
+
+/* Selection styles */
+::selection {
+  background: rgba(154, 205, 50, 0.3);
+  color: var(--text-dark);
+}
+
+::-moz-selection {
+  background: rgba(154, 205, 50, 0.3);
+  color: var(--text-dark);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* High-DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .logo-svg {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
   }
 }

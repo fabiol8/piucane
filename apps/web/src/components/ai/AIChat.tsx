@@ -1,468 +1,515 @@
+/**
+ * AIChat - Main AI Chat Interface Component
+ *
+ * Provides a comprehensive chat interface for AI agents (veterinary, trainer, groomer)
+ * with real-time messaging, safety features, and product recommendations.
+ */
+
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Button, Card, Input } from '@piucane/ui';
-import { trackEvent } from '@/analytics/ga4';
-import AgentSelector from './AgentSelector';
-import ChatMessage from './ChatMessage';
-import UsageStats from './UsageStats';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Button } from '@/components/ui/Button';
+import { Card, CardHeader, CardContent } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { trackCTAClick } from '@/analytics/ga4';
+import {
+  ChatMessage as ChatMessageType,
+  ChatSession,
+  AgentType,
+  SafetyLevel,
+  AgentAction,
+  ProductSuggestion
+} from '@/types/ai-agents';
+import { ChatMessage } from './ChatMessage';
+import { AgentSelector } from './AgentSelector';
+import { UsageStats } from './UsageStats';
 
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  urgent?: boolean;
-  toolResults?: any[];
-  timestamp: string;
+interface AIChatProps {
+  sessionId?: string;
+  initialAgent?: AgentType;
+  dogId?: string;
+  className?: string;
 }
 
-interface Conversation {
-  id: string;
-  agentType: 'vet' | 'educator' | 'groomer';
-  title: string;
-  messageCount: number;
-  lastMessage: string;
-  updatedAt: string;
-}
+// Mock data for demonstration
+const mockSession: ChatSession = {
+  id: 'session_1',
+  userId: 'user_1',
+  dogId: 'dog_1',
+  agentType: 'veterinary',
+  status: 'active',
+  startedAt: new Date(),
+  lastActivityAt: new Date(),
+  messages: [],
+  context: {
+    dog: {
+      id: 'dog_1',
+      name: 'Luna',
+      breed: 'Golden Retriever',
+      age: { value: 3, unit: 'years' },
+      weight: 28,
+      size: 'large',
+      allergies: ['pollo'],
+      healthConditions: [],
+      coatType: 'long'
+    },
+    user: {
+      experienceLevel: 'intermediate',
+      hasMultipleDogs: false,
+      preferredLanguage: 'it',
+      consentToTracking: true,
+      consentToMarketing: true
+    }
+  },
+  retentionPolicy: {
+    autoDelete: true,
+    deleteAfterDays: 30,
+    userCanDelete: true
+  }
+};
 
-interface UsageStats {
-  usage: any;
-  limits: any;
-  remaining: any;
-}
-
-export default function AIChat() {
-  const [selectedAgent, setSelectedAgent] = useState<'vet' | 'educator' | 'groomer'>('vet');
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [currentConversation, setCurrentConversation] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [message, setMessage] = useState('');
+export function AIChat({
+  sessionId,
+  initialAgent = 'veterinary',
+  dogId,
+  className = ''
+}: AIChatProps) {
+  const [session, setSession] = useState<ChatSession>(mockSession);
+  const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
-  const [selectedDogId, setSelectedDogId] = useState<string>('');
-  const [availableDogs, setAvailableDogs] = useState<any[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<AgentType>(initialAgent);
+  const [showAgentSelector, setShowAgentSelector] = useState(false);
+  const [showUsageStats, setShowUsageStats] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    fetchConversations();
-    fetchUsageStats();
-    fetchUserDogs();
-  }, [selectedAgent]);
-
-  useEffect(() => {
-    if (currentConversation) {
-      fetchMessages(currentConversation);
-    }
-  }, [currentConversation]);
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [session.messages, scrollToBottom]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Track chat initialization
+  useEffect(() => {
+    trackCTAClick('ai_chat.init', {
+      agent_type: selectedAgent,
+      dog_id: dogId,
+      session_id: session.id
+    });
+  }, []);
 
-  const fetchConversations = async () => {
-    try {
-      const response = await fetch(`/api/ai/conversations?agentType=${selectedAgent}`);
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data.conversations);
-      }
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
-    }
-  };
+  // Send message handler
+  const handleSendMessage = async () => {
+    if (!currentMessage.trim() || isLoading) return;
 
-  const fetchMessages = async (conversationId: string) => {
-    try {
-      const response = await fetch(`/api/ai/conversations/${conversationId}/messages`);
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages);
-      }
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    }
-  };
-
-  const fetchUsageStats = async () => {
-    try {
-      const response = await fetch('/api/ai/usage');
-      if (response.ok) {
-        const data = await response.json();
-        setUsageStats(data);
-      }
-    } catch (error) {
-      console.error('Error fetching usage stats:', error);
-    }
-  };
-
-  const fetchUserDogs = async () => {
-    try {
-      const response = await fetch('/api/dogs');
-      if (response.ok) {
-        const data = await response.json();
-        setAvailableDogs(data.dogs || []);
-      }
-    } catch (error) {
-      console.error('Error fetching dogs:', error);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!message.trim() || isLoading) return;
-
-    // Check usage limits
-    if (usageStats && usageStats.remaining[selectedAgent].daily <= 0) {
-      alert('Hai raggiunto il limite giornaliero di messaggi per questo agente.');
-      return;
-    }
-
-    setIsLoading(true);
-    const userMessage = message;
-    setMessage('');
-
-    // Add user message immediately
-    const tempUserMessage: Message = {
-      id: Date.now().toString(),
+    const userMessage: ChatMessageType = {
+      id: `msg_${Date.now()}`,
+      sessionId: session.id,
       role: 'user',
-      content: userMessage,
-      timestamp: new Date().toISOString()
+      content: currentMessage,
+      timestamp: new Date(),
+      agentType: selectedAgent,
+      metadata: {
+        safetyLevel: 'ok',
+        tokens: currentMessage.length,
+      }
     };
-    setMessages(prev => [...prev, tempUserMessage]);
+
+    // Add user message to session
+    setSession(prev => ({
+      ...prev,
+      messages: [...prev.messages, userMessage],
+      lastActivityAt: new Date()
+    }));
+
+    // Clear input
+    setCurrentMessage('');
+    setIsLoading(true);
+    setIsTyping(true);
+
+    trackCTAClick('ai_chat.message.send', {
+      agent_type: selectedAgent,
+      message_length: currentMessage.length,
+      session_id: session.id
+    });
 
     try {
-      const response = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agentType: selectedAgent,
-          message: userMessage,
-          conversationId: currentConversation,
-          dogId: selectedDogId || undefined,
-          context: {
-            userAgent: navigator.userAgent,
-            timestamp: new Date().toISOString()
-          }
-        })
-      });
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      if (response.ok) {
-        const data = await response.json();
+      // Mock AI response
+      const agentResponse: ChatMessageType = {
+        id: `msg_${Date.now() + 1}`,
+        sessionId: session.id,
+        role: 'assistant',
+        content: generateMockResponse(currentMessage, selectedAgent, session.context.dog?.name || 'il tuo cane'),
+        timestamp: new Date(),
+        agentType: selectedAgent,
+        metadata: {
+          safetyLevel: 'ok',
+          tokens: 150,
+          processingTime: 1800
+        },
+        suggestedActions: generateMockActions(selectedAgent),
+        hasCommercialContent: selectedAgent === 'veterinary' && Math.random() > 0.5
+      };
 
-        // Update current conversation or set new one
-        if (!currentConversation) {
-          setCurrentConversation(data.conversationId);
-        }
+      setSession(prev => ({
+        ...prev,
+        messages: [...prev.messages, agentResponse],
+        lastActivityAt: new Date()
+      }));
 
-        // Add assistant response
-        const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: data.response,
-          urgent: data.urgent,
-          toolResults: data.toolResults,
-          timestamp: new Date().toISOString()
-        };
-        setMessages(prev => [...prev.slice(0, -1), tempUserMessage, assistantMessage]);
-
-        // Update usage stats
-        await fetchUsageStats();
-
-        // Track analytics
-        trackEvent('ai_message_sent', {
-          agent_type: selectedAgent,
-          conversation_id: data.conversationId,
-          urgent_response: data.urgent,
-          tool_calls: data.toolResults?.length || 0,
-          message_length: userMessage.length
-        });
-
-        // Show urgent notification if needed
-        if (data.urgent) {
-          showUrgentNotification(data.response);
-        }
-
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || 'Errore nell\'inviare il messaggio');
-
-        // Remove the temporary user message on error
-        setMessages(prev => prev.slice(0, -1));
-      }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Errore di connessione');
 
-      // Remove the temporary user message on error
-      setMessages(prev => prev.slice(0, -1));
+      const errorMessage: ChatMessageType = {
+        id: `msg_error_${Date.now()}`,
+        sessionId: session.id,
+        role: 'assistant',
+        content: 'Mi dispiace, si è verificato un errore. Riprova tra qualche istante.',
+        timestamp: new Date(),
+        agentType: selectedAgent,
+        metadata: {
+          safetyLevel: 'warning',
+          tokens: 0
+        }
+      };
+
+      setSession(prev => ({
+        ...prev,
+        messages: [...prev.messages, errorMessage]
+      }));
     } finally {
       setIsLoading(false);
+      setIsTyping(false);
     }
   };
 
-  const startNewConversation = () => {
-    setCurrentConversation(null);
-    setMessages([]);
+  // Handle agent change
+  const handleAgentChange = (newAgent: AgentType) => {
+    if (newAgent === selectedAgent) return;
 
-    trackEvent('ai_new_conversation', {
-      agent_type: selectedAgent
+    setSelectedAgent(newAgent);
+    setSession(prev => ({ ...prev, agentType: newAgent }));
+    setShowAgentSelector(false);
+
+    trackCTAClick('ai_chat.agent.change', {
+      from_agent: selectedAgent,
+      to_agent: newAgent,
+      session_id: session.id
     });
+
+    // Add system message about agent change
+    const systemMessage: ChatMessageType = {
+      id: `msg_system_${Date.now()}`,
+      sessionId: session.id,
+      role: 'system',
+      content: `Ora stai chattando con l'agente ${getAgentDisplayName(newAgent)}. Come posso aiutarti?`,
+      timestamp: new Date(),
+      agentType: newAgent,
+      metadata: { safetyLevel: 'ok', tokens: 0 }
+    };
+
+    setSession(prev => ({
+      ...prev,
+      messages: [...prev.messages, systemMessage]
+    }));
   };
 
-  const selectConversation = (conversation: Conversation) => {
-    setCurrentConversation(conversation.id);
-
-    trackEvent('ai_conversation_selected', {
+  // Handle suggested action
+  const handleAction = (action: AgentAction) => {
+    trackCTAClick('ai_chat.action.execute', {
+      action_type: action.type,
       agent_type: selectedAgent,
-      conversation_id: conversation.id
+      session_id: session.id
     });
-  };
 
-  const showUrgentNotification = (content: string) => {
-    // Create a more prominent notification for urgent responses
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('🚨 Messaggio urgente dal Veterinario', {
-        body: content.substring(0, 100) + '...',
-        icon: '/icons/urgent.png'
-      });
+    // Handle different action types
+    switch (action.type) {
+      case 'suggest_products':
+        // Navigate to shop or show products
+        break;
+      case 'create_reminder':
+        // Open reminder creation modal
+        break;
+      case 'create_mission':
+        // Open mission creation modal
+        break;
+      case 'open_vet_search':
+        // Navigate to veterinary search
+        window.open('/veterinary', '_blank');
+        break;
+      default:
+        console.log('Action executed:', action);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  // Handle enter key press
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      handleSendMessage();
     }
-  };
-
-  const canSendMessage = () => {
-    return message.trim() &&
-           !isLoading &&
-           usageStats &&
-           usageStats.remaining[selectedAgent].daily > 0;
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className={`flex flex-col h-full bg-gray-50 ${className}`}>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Chat con Esperti AI</h1>
-        <p className="text-gray-600">
-          Chatta con i nostri esperti AI per ricevere consigli personalizzati per il tuo cane
-        </p>
-      </div>
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <div className={`w-3 h-3 rounded-full ${
+                selectedAgent === 'veterinary' ? 'bg-blue-500' :
+                selectedAgent === 'trainer' ? 'bg-green-500' : 'bg-orange-500'
+              }`} />
+              <h2 className="text-lg font-semibold text-gray-900">
+                {getAgentDisplayName(selectedAgent)}
+              </h2>
+              {session.context.dog && (
+                <span className="text-sm text-gray-600">
+                  • {session.context.dog.name}
+                </span>
+              )}
+            </div>
+          </div>
 
-      <div className="grid lg:grid-cols-4 gap-6">
-        {/* Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Agent Selection */}
-          <AgentSelector
-            selectedAgent={selectedAgent}
-            onAgentChange={setSelectedAgent}
-            usageStats={usageStats}
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowUsageStats(true)}
+              ctaId="ai_chat.usage_stats.open"
+              leftIcon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              }
+            >
+              Statistiche
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAgentSelector(true)}
+              ctaId="ai_chat.agent_selector.open"
+              leftIcon={
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                </svg>
+              }
+            >
+              Cambia agente
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        {session.messages.length === 0 && (
+          <div className="text-center py-8">
+            <div className="text-gray-500 mb-4">
+              <svg className="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Benvenuto nel chat con l'agente {getAgentDisplayName(selectedAgent)}!
+            </h3>
+            <p className="text-gray-600 text-sm max-w-md mx-auto">
+              {getAgentWelcomeMessage(selectedAgent, session.context.dog?.name)}
+            </p>
+          </div>
+        )}
+
+        {session.messages.map((message) => (
+          <ChatMessage
+            key={message.id}
+            message={message}
+            onActionClick={handleAction}
+            agentName={getAgentDisplayName(selectedAgent)}
           />
+        ))}
 
-          {/* Dog Selection */}
-          {availableDogs.length > 0 && (
-            <Card>
-              <h3 className="font-semibold text-gray-900 mb-3">Seleziona il tuo cane</h3>
-              <select
-                value={selectedDogId}
-                onChange={(e) => setSelectedDogId(e.target.value)}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-              >
-                <option value="">Conversazione generale</option>
-                {availableDogs.map((dog) => (
-                  <option key={dog.id} value={dog.id}>
-                    {dog.name} ({dog.breed})
-                  </option>
-                ))}
-              </select>
-            </Card>
-          )}
+        {isTyping && (
+          <div className="flex items-start space-x-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold ${
+              selectedAgent === 'veterinary' ? 'bg-blue-500' :
+              selectedAgent === 'trainer' ? 'bg-green-500' : 'bg-orange-500'
+            }`}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <div className="bg-white rounded-lg rounded-bl-sm px-4 py-2 shadow-sm border">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
+        )}
 
-          {/* Usage Stats */}
-          {usageStats && (
-            <UsageStats
-              stats={usageStats}
-              selectedAgent={selectedAgent}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="bg-white border-t border-gray-200 px-4 py-4 flex-shrink-0">
+        <div className="flex items-end space-x-3">
+          <div className="flex-1">
+            <Textarea
+              ref={messageInputRef}
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={`Scrivi un messaggio all'agente ${getAgentDisplayName(selectedAgent)}...`}
+              rows={1}
+              className="resize-none min-h-[40px] max-h-32"
+              disabled={isLoading}
             />
-          )}
-
-          {/* Conversations List */}
-          <Card>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-900">Conversazioni</h3>
-              <Button
-                size="sm"
-                onClick={startNewConversation}
-                data-cta-id="ai_chat.new_conversation.click"
-              >
-                + Nuova
-              </Button>
-            </div>
-
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {conversations.length === 0 ? (
-                <p className="text-sm text-gray-500">Nessuna conversazione</p>
-              ) : (
-                conversations.map((conversation) => (
-                  <button
-                    key={conversation.id}
-                    onClick={() => selectConversation(conversation)}
-                    className={`w-full text-left p-2 rounded-md text-sm transition-colors ${
-                      currentConversation === conversation.id
-                        ? 'bg-orange-50 text-orange-900 border border-orange-200'
-                        : 'hover:bg-gray-50'
-                    }`}
-                    data-cta-id={`ai_chat.conversation_${conversation.id}.select`}
-                  >
-                    <div className="font-medium truncate">{conversation.title}</div>
-                    <div className="text-gray-500 truncate">
-                      {conversation.lastMessage}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {new Date(conversation.updatedAt).toLocaleDateString('it-IT')}
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
-          </Card>
-        </div>
-
-        {/* Chat Interface */}
-        <div className="lg:col-span-3">
-          <Card className="h-[600px] flex flex-col">
-            {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                  <span className="text-lg">
-                    {selectedAgent === 'vet' ? '🩺' :
-                     selectedAgent === 'educator' ? '🎓' : '✂️'}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    {selectedAgent === 'vet' ? 'Dr. AI Veterinario' :
-                     selectedAgent === 'educator' ? 'Educatore Cinofilo AI' :
-                     'Groomer Professionale AI'}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {selectedAgent === 'vet' ? 'Supporto per la salute del tuo cane' :
-                     selectedAgent === 'educator' ? 'Addestramento e comportamento' :
-                     'Cura del mantello e igiene'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">
-                    {selectedAgent === 'vet' ? '🩺' :
-                     selectedAgent === 'educator' ? '🎓' : '✂️'}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Inizia una conversazione
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Fai una domanda al nostro {' '}
-                    {selectedAgent === 'vet' ? 'veterinario' :
-                     selectedAgent === 'educator' ? 'educatore cinofilo' :
-                     'groomer'} AI
-                  </p>
-                  <div className="text-sm text-gray-500">
-                    Esempi di domande:
-                    <ul className="mt-2 space-y-1">
-                      {selectedAgent === 'vet' && (
-                        <>
-                          <li>• "Il mio cane ha perso l'appetito, cosa potrebbe essere?"</li>
-                          <li>• "Quali sono i sintomi di una allergia alimentare?"</li>
-                          <li>• "Quando dovrei preoccuparmi per il vomito?"</li>
-                        </>
-                      )}
-                      {selectedAgent === 'educator' && (
-                        <>
-                          <li>• "Come posso insegnare al mio cane a non tirare al guinzaglio?"</li>
-                          <li>• "Il mio cucciolo abbaia troppo, come posso aiutarlo?"</li>
-                          <li>• "Quali esercizi posso fare per socializzare il mio cane?"</li>
-                        </>
-                      )}
-                      {selectedAgent === 'groomer' && (
-                        <>
-                          <li>• "Quanto spesso dovrei spazzolare il mio Golden Retriever?"</li>
-                          <li>• "Come posso abituare il mio cane al taglio delle unghie?"</li>
-                          <li>• "Quali prodotti sono migliori per il bagno?"</li>
-                        </>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              ) : (
-                messages.map((msg) => (
-                  <ChatMessage
-                    key={msg.id}
-                    message={msg}
-                    agentType={selectedAgent}
-                  />
-                ))
-              )}
-
-              {isLoading && (
-                <div className="flex items-center space-x-2 text-gray-500">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-600"></div>
-                  <span>L'esperto sta rispondendo...</span>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Message Input */}
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex space-x-3">
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={`Scrivi la tua domanda al ${
-                    selectedAgent === 'vet' ? 'veterinario' :
-                    selectedAgent === 'educator' ? 'educatore' : 'groomer'
-                  }...`}
-                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 resize-none"
-                  rows={2}
-                  disabled={isLoading || (usageStats && usageStats.remaining[selectedAgent].daily <= 0)}
-                />
-                <Button
-                  onClick={sendMessage}
-                  disabled={!canSendMessage()}
-                  data-cta-id={`ai_chat.send_message.${selectedAgent}.click`}
-                >
-                  {isLoading ? '⏳' : '📤'}
-                </Button>
-              </div>
-
-              {usageStats && usageStats.remaining[selectedAgent].daily <= 0 && (
-                <div className="mt-2 text-sm text-red-600">
-                  Hai raggiunto il limite giornaliero di messaggi per questo agente.
-                </div>
-              )}
-
-              <div className="mt-2 text-xs text-gray-500">
-                Premi Invio per inviare, Shift+Invio per andare a capo
-              </div>
-            </div>
-          </Card>
+          </div>
+          <Button
+            onClick={handleSendMessage}
+            disabled={!currentMessage.trim() || isLoading}
+            variant="primary"
+            size="sm"
+            className="px-4 h-[40px]"
+            ctaId="ai_chat.message.send"
+            loading={isLoading}
+          >
+            {isLoading ? 'Inviando...' : 'Invia'}
+          </Button>
         </div>
       </div>
+
+      {/* Modals */}
+      {showAgentSelector && (
+        <AgentSelector
+          currentAgent={selectedAgent}
+          onAgentSelect={handleAgentChange}
+          onClose={() => setShowAgentSelector(false)}
+        />
+      )}
+
+      {showUsageStats && (
+        <UsageStats
+          sessionId={session.id}
+          onClose={() => setShowUsageStats(false)}
+        />
+      )}
     </div>
   );
 }
+
+// Helper functions
+function getAgentDisplayName(agent: AgentType): string {
+  switch (agent) {
+    case 'veterinary':
+      return 'Veterinario Virtuale';
+    case 'trainer':
+      return 'Educatore Cinofilo';
+    case 'groomer':
+      return 'Toelettatore Esperto';
+    default:
+      return 'Agente AI';
+  }
+}
+
+function getAgentWelcomeMessage(agent: AgentType, dogName?: string): string {
+  const name = dogName || 'il tuo cane';
+
+  switch (agent) {
+    case 'veterinary':
+      return `Sono qui per aiutarti con domande sulla salute e il benessere di ${name}. Ricorda che non posso sostituire una visita veterinaria.`;
+    case 'trainer':
+      return `Sono qui per aiutarti con l'educazione e l'addestramento di ${name}. Insieme possiamo creare un piano di allenamento personalizzato!`;
+    case 'groomer':
+      return `Sono qui per consigliarti sulla cura del mantello e l'igiene di ${name}. Dimmi di più sul tipo di pelo!`;
+    default:
+      return `Sono qui per aiutarti con ${name}. Come posso esserti utile?`;
+  }
+}
+
+function generateMockResponse(userMessage: string, agent: AgentType, dogName: string): string {
+  const responses = {
+    veterinary: [
+      `Capisco la tua preoccupazione per ${dogName}. Basandomi sulla tua descrizione, ti consiglio di monitorare attentamente la situazione.`,
+      `Per ${dogName} è importante mantenere una routine regolare. Ti suggerisco alcuni controlli che puoi fare a casa.`,
+      `La salute di ${dogName} è la priorità. Se noti sintomi persistenti, consulta sempre il tuo veterinario di fiducia.`
+    ],
+    trainer: [
+      `Ottima domanda sull'addestramento di ${dogName}! Il rinforzo positivo è sempre la strada migliore.`,
+      `Per ${dogName} possiamo creare un piano di allenamento graduale. La costanza è fondamentale!`,
+      `Ogni cane ha i suoi tempi di apprendimento. ${dogName} ha bisogno di pazienza e coerenza negli esercizi.`
+    ],
+    groomer: [
+      `Il mantello di ${dogName} richiede cure specifiche. Dimmi di più sul tipo di pelo!`,
+      `Per mantenere ${dogName} sempre al top, è importante stabilire una routine di toelettatura.`,
+      `La cura del mantello di ${dogName} dipende dalla razza e dalle sue caratteristiche specifiche.`
+    ]
+  };
+
+  const agentResponses = responses[agent];
+  return agentResponses[Math.floor(Math.random() * agentResponses.length)];
+}
+
+function generateMockActions(agent: AgentType): AgentAction[] {
+  const actions = {
+    veterinary: [
+      {
+        id: 'vet_1',
+        type: 'open_vet_search' as const,
+        label: 'Trova veterinario',
+        description: 'Cerca veterinari nella tua zona',
+        icon: '🏥',
+        params: { emergency: false },
+        variant: 'primary' as const
+      },
+      {
+        id: 'vet_2',
+        type: 'create_reminder' as const,
+        label: 'Imposta promemoria',
+        description: 'Crea un promemoria per controlli',
+        icon: '⏰',
+        params: { type: 'health_check' },
+        variant: 'secondary' as const
+      }
+    ],
+    trainer: [
+      {
+        id: 'train_1',
+        type: 'create_mission' as const,
+        label: 'Crea missione',
+        description: 'Inizia un programma di addestramento',
+        icon: '🎯',
+        params: { category: 'training' },
+        variant: 'primary' as const
+      }
+    ],
+    groomer: [
+      {
+        id: 'groom_1',
+        type: 'suggest_products' as const,
+        label: 'Prodotti consigliati',
+        description: 'Vedi prodotti per la toelettatura',
+        icon: '🛍️',
+        params: { category: 'grooming' },
+        variant: 'primary' as const
+      }
+    ]
+  };
+
+  return actions[agent] || [];
+}
+
+export default AIChat;

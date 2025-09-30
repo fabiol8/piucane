@@ -1,0 +1,89 @@
+# CODEOWNERS - Ownership and Review Requirements
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything (fallback)
+* @piucane/engineering-team
+
+# Documentation
+/docs/ @piucane/tech-writers @piucane/engineering-leads
+/docs/adr/ @piucane/engineering-leads @piucane/architects
+/docs/legal/ @piucane/legal-team
+/docs/security/ @piucane/security-team
+README.md @piucane/engineering-leads
+CONTRIBUTING.md @piucane/engineering-leads
+CODE_OF_CONDUCT.md @piucane/engineering-leads
+
+# Frontend - Web App
+/apps/web/ @piucane/frontend-team
+/apps/web/src/components/ @piucane/frontend-team @piucane/design-system-team
+/apps/web/src/app/ @piucane/frontend-team
+/apps/web/src/analytics/ @piucane/analytics-team @piucane/frontend-team
+
+# Frontend - Admin Backoffice
+/apps/admin/ @piucane/admin-team
+/apps/admin/src/modules/ @piucane/admin-team @piucane/backend-team
+
+# Backend - API
+/api/ @piucane/backend-team
+/api/src/modules/auth/ @piucane/backend-team @piucane/security-team
+/api/src/modules/payments/ @piucane/backend-team @piucane/fintech-team
+/api/src/modules/ai/ @piucane/backend-team @piucane/ai-team
+/api/src/middleware/ @piucane/backend-team @piucane/security-team
+
+# Shared Packages
+/packages/ui/ @piucane/design-system-team @piucane/frontend-team
+/packages/lib/ @piucane/backend-team @piucane/frontend-team
+
+# Configuration & Infrastructure
+/firebase.json @piucane/devops-team @piucane/backend-team
+/firestore.rules @piucane/security-team @piucane/backend-team
+/firestore.indexes.json @piucane/backend-team
+/storage.rules @piucane/security-team @piucane/backend-team
+/.github/workflows/ @piucane/devops-team
+/config/ @piucane/devops-team @piucane/security-team
+
+# Security-sensitive files
+/config/csp/ @piucane/security-team
+/config/cors/ @piucane/security-team
+/.env.example @piucane/security-team @piucane/devops-team
+firestore.rules @piucane/security-team
+storage.rules @piucane/security-team
+
+# Analytics & Tracking
+/docs/analytics/ @piucane/analytics-team
+/docs/cta/ @piucane/analytics-team @piucane/product-team
+/apps/web/src/analytics/ @piucane/analytics-team
+
+# Testing
+/tests/ @piucane/qa-team @piucane/engineering-team
+playwright.config.ts @piucane/qa-team
+jest.config.js @piucane/qa-team
+
+# Dependencies (require extra review)
+package.json @piucane/engineering-leads @piucane/security-team
+package-lock.json @piucane/engineering-leads
+/apps/*/package.json @piucane/engineering-leads
+
+# Legal & Compliance
+LICENSE @piucane/legal-team
+/docs/legal/ @piucane/legal-team
+/docs/cmp/ @piucane/legal-team @piucane/privacy-team
+
+# Team Definitions (reference only - actual teams managed on GitHub)
+# @piucane/engineering-team - All engineers
+# @piucane/engineering-leads - Tech leads
+# @piucane/architects - Architecture decision makers
+# @piucane/frontend-team - Frontend engineers
+# @piucane/backend-team - Backend engineers
+# @piucane/admin-team - Admin backoffice team
+# @piucane/devops-team - DevOps engineers
+# @piucane/security-team - Security specialists
+# @piucane/qa-team - QA engineers
+# @piucane/analytics-team - Analytics specialists
+# @piucane/design-system-team - Design system maintainers
+# @piucane/tech-writers - Technical writers
+# @piucane/legal-team - Legal department
+# @piucane/privacy-team - Privacy & GDPR specialists
+# @piucane/ai-team - AI/ML specialists
+# @piucane/fintech-team - Payments & financial specialists
+# @piucane/product-team - Product managers

@@ -43,3 +43,30 @@ export const setConsentStatus = (consent: ConsentSettings) => {
   localStorage.setItem('piucane_consent', JSON.stringify(consent));
   updateConsent(consent);
 };
+
+/**
+ * Get current consent state for use in components
+ * Returns simplified boolean state for common categories
+ */
+export const getConsentState = (): { analytics: boolean; marketing: boolean; functional: boolean } => {
+  if (typeof window === 'undefined') {
+    return { analytics: false, marketing: false, functional: false };
+  }
+
+  const stored = localStorage.getItem('piucane_consent');
+  if (!stored) {
+    return { analytics: false, marketing: false, functional: false };
+  }
+
+  try {
+    const consent = JSON.parse(stored);
+    return {
+      analytics: consent.analytics_storage === 'granted' || consent.analytics === true,
+      marketing: consent.ad_storage === 'granted' || consent.marketing === true,
+      functional: consent.functionality_storage === 'granted' || consent.functional === true
+    };
+  } catch (error) {
+    console.error('Error parsing consent state:', error);
+    return { analytics: false, marketing: false, functional: false };
+  }
+};

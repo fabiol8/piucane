@@ -31,7 +31,7 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor(config: EmailConfig) {
-    this.transporter = nodemailer.createTransporter(config);
+    this.transporter = nodemailer.createTransport(config);
   }
 
   async renderTemplate(template: EmailTemplate, data: Record<string, any>): Promise<{ html: string; text?: string }> {

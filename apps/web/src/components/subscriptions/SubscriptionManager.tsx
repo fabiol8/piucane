@@ -1,302 +1,533 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button, Card, Input } from '@piucane/ui';
-import { trackEvent } from '@/analytics/ga4';
-import SubscriptionCard from './SubscriptionCard';
-import CreateSubscriptionModal from './CreateSubscriptionModal';
+/**
+ * SubscriptionManager - Main subscription dashboard component
+ * Features: Active subscriptions overview, quick actions, analytics, next deliveries
+ */
+
+import React, { useState, useEffect } from 'react'
+import { Plus, Calendar, Package, Pause, Play, Settings, TrendingUp, Clock, AlertCircle, CheckCircle, Truck } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { trackCTA } from '@/analytics/ga4'
+import { SubscriptionCard } from './SubscriptionCard'
+import { CreateSubscriptionModal } from './CreateSubscriptionModal'
+
+interface Dog {
+  id: string
+  name: string
+  breed: string
+  weight: number
+  age: number
+  allergies: string[]
+  specialNeeds: string[]
+  activityLevel: 'low' | 'medium' | 'high'
+}
 
 interface Subscription {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage: string;
-  quantity: number;
-  frequency: string;
-  customFrequency?: {
-    interval: string;
-    count: number;
-  };
-  basePrice: number;
-  discountedPrice: number;
-  totalPrice: number;
-  discountPercentage: number;
-  status: 'active' | 'paused' | 'cancelled' | 'cancelling';
-  nextDeliveryDate: string;
-  lastDeliveryDate?: string;
-  totalDeliveries: number;
-  shippingAddress: {
-    street: string;
-    city: string;
-    zipCode: string;
-    country: string;
-  };
-  createdAt: string;
-  pausedUntil?: string;
+  id: string
+  dogId: string
+  productId: string
+  productName: string
+  productBrand: string
+  productImage: string
+  formatId: string
+  formatSize: string
+  quantity: number
+  frequency: number // weeks
+  status: 'active' | 'paused' | 'cancelled'
+  nextDelivery: string
+  price: number
+  originalPrice: number
+  savings: number
+  createdAt: string
+  lastDelivery?: string
+  totalDeliveries: number
+  isCustomizable: boolean
+  autoAdjust: boolean
+  personalizedDosage?: {
+    dailyAmount: number
+    adjustmentHistory: Array<{
+      date: string
+      oldAmount: number
+      newAmount: number
+      reason: string
+    }>
+  }
 }
 
-interface NextDelivery {
-  id: string;
-  subscriptionId: string;
-  scheduledDate: string;
-  quantity: number;
-  status: string;
+interface SubscriptionManagerProps {
+  userId: string
+  dogs: Dog[]
+  className?: string
 }
 
-export default function SubscriptionManager() {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [nextDeliveries, setNextDeliveries] = useState<NextDelivery[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+export function SubscriptionManager({
+  userId,
+  dogs,
+  className = ''
+}: SubscriptionManagerProps) {
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [selectedDog, setSelectedDog] = useState<Dog | null>(null)
+  const [filter, setFilter] = useState<'all' | 'active' | 'paused' | 'cancelled'>('all')
+  const [sortBy, setSortBy] = useState<'nextDelivery' | 'created' | 'name'>('nextDelivery')
 
   useEffect(() => {
-    fetchSubscriptions();
-  }, [filterStatus]);
+    loadSubscriptions()
+    trackCTA({
+      ctaId: 'subscriptions.dashboard.viewed',
+      event: 'page_view',
+      metadata: { userId, dogCount: dogs.length }
+    })
+  }, [userId])
 
-  const fetchSubscriptions = async () => {
-    setIsLoading(true);
+  const loadSubscriptions = async () => {
+    setLoading(true)
     try {
-      const params = new URLSearchParams();
-      if (filterStatus !== 'all') {
-        params.append('status', filterStatus);
-      }
+      // Mock data - in real app would fetch from API
+      const mockSubscriptions: Subscription[] = [
+        {
+          id: 'sub-1',
+          dogId: dogs[0]?.id || 'dog-1',
+          productId: 'piucane-adult-chicken-rice-12kg',
+          productName: 'PiùCane Adult Pollo e Riso',
+          productBrand: 'PiùCane',
+          productImage: '/products/piucane-adult-chicken-rice-main.jpg',
+          formatId: 'piucane-adult-chicken-rice-12kg',
+          formatSize: '12kg',
+          quantity: 1,
+          frequency: 6,
+          status: 'active',
+          nextDelivery: '2024-02-15',
+          price: 40.79,
+          originalPrice: 47.99,
+          savings: 7.20,
+          createdAt: '2024-01-01',
+          lastDelivery: '2024-01-04',
+          totalDeliveries: 3,
+          isCustomizable: true,
+          autoAdjust: true,
+          personalizedDosage: {
+            dailyAmount: 280,
+            adjustmentHistory: [
+              {
+                date: '2024-01-15',
+                oldAmount: 300,
+                newAmount: 280,
+                reason: 'Ridotto livello di attività'
+              }
+            ]
+          }
+        },
+        {
+          id: 'sub-2',
+          dogId: dogs[0]?.id || 'dog-1',
+          productId: 'piucane-treats-dental',
+          productName: 'Snack Dental Care Menta',
+          productBrand: 'DentaDog',
+          productImage: '/products/treats-dental.jpg',
+          formatId: 'dental-treats-200g',
+          formatSize: '200g',
+          quantity: 2,
+          frequency: 4,
+          status: 'active',
+          nextDelivery: '2024-02-08',
+          price: 21.26,
+          originalPrice: 25.00,
+          savings: 3.74,
+          createdAt: '2024-01-15',
+          totalDeliveries: 1,
+          isCustomizable: false,
+          autoAdjust: false
+        },
+        {
+          id: 'sub-3',
+          dogId: dogs[1]?.id || 'dog-2',
+          productId: 'piucane-puppy-chicken-rice-3kg',
+          productName: 'PiùCane Puppy Pollo e Riso',
+          productBrand: 'PiùCane',
+          productImage: '/products/piucane-puppy-chicken-rice-main.jpg',
+          formatId: 'piucane-puppy-chicken-rice-3kg',
+          formatSize: '3kg',
+          quantity: 1,
+          frequency: 3,
+          status: 'paused',
+          nextDelivery: '2024-02-20',
+          price: 18.69,
+          originalPrice: 21.99,
+          savings: 3.30,
+          createdAt: '2024-01-20',
+          totalDeliveries: 2,
+          isCustomizable: true,
+          autoAdjust: true
+        }
+      ]
 
-      const response = await fetch(`/api/subscriptions?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setSubscriptions(data.subscriptions);
-        setNextDeliveries(data.nextDeliveries);
-      }
+      setSubscriptions(mockSubscriptions)
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
+      console.error('Error loading subscriptions:', error)
     } finally {
-      setIsLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleSubscriptionUpdate = (subscriptionId: string, updates: Partial<Subscription>) => {
-    setSubscriptions(prev =>
-      prev.map(sub =>
-        sub.id === subscriptionId ? { ...sub, ...updates } : sub
+  const handleCreateSubscription = (dogId: string) => {
+    const dog = dogs.find(d => d.id === dogId)
+    setSelectedDog(dog || null)
+    setShowCreateModal(true)
+
+    trackCTA({
+      ctaId: 'subscriptions.create.initiated',
+      event: 'subscription_create_start',
+      metadata: { dogId, source: 'dashboard' }
+    })
+  }
+
+  const handleSubscriptionUpdate = async (subscriptionId: string, updates: Partial<Subscription>) => {
+    try {
+      setSubscriptions(current =>
+        current.map(sub =>
+          sub.id === subscriptionId ? { ...sub, ...updates } : sub
+        )
       )
-    );
-  };
 
-  const handleSubscriptionDelete = (subscriptionId: string) => {
-    setSubscriptions(prev => prev.filter(sub => sub.id !== subscriptionId));
-  };
-
-  const getTotalMonthlySavings = () => {
-    return subscriptions
-      .filter(sub => sub.status === 'active')
-      .reduce((total, sub) => {
-        const monthlySavings = (sub.basePrice - sub.discountedPrice) * sub.quantity;
-        return total + monthlySavings;
-      }, 0);
-  };
-
-  const getUpcomingDeliveries = () => {
-    return nextDeliveries
-      .filter(delivery => {
-        const deliveryDate = new Date(delivery.scheduledDate);
-        const thirtyDaysFromNow = new Date();
-        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-        return deliveryDate <= thirtyDaysFromNow;
+      trackCTA({
+        ctaId: 'subscriptions.updated',
+        event: 'subscription_modified',
+        value: subscriptionId,
+        metadata: { updates: Object.keys(updates) }
       })
-      .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
-  };
+    } catch (error) {
+      console.error('Error updating subscription:', error)
+    }
+  }
 
-  const filteredSubscriptions = subscriptions.filter(sub => {
-    if (filterStatus === 'all') return true;
-    return sub.status === filterStatus;
-  });
+  const handleBulkAction = async (action: 'pause' | 'resume' | 'cancel', subscriptionIds: string[]) => {
+    try {
+      const updates: Partial<Subscription> = {}
 
-  if (isLoading) {
+      switch (action) {
+        case 'pause':
+          updates.status = 'paused'
+          break
+        case 'resume':
+          updates.status = 'active'
+          break
+        case 'cancel':
+          updates.status = 'cancelled'
+          break
+      }
+
+      setSubscriptions(current =>
+        current.map(sub =>
+          subscriptionIds.includes(sub.id) ? { ...sub, ...updates } : sub
+        )
+      )
+
+      trackCTA({
+        ctaId: 'subscriptions.bulk_action',
+        event: 'subscription_bulk_update',
+        value: action,
+        metadata: { count: subscriptionIds.length }
+      })
+    } catch (error) {
+      console.error('Error performing bulk action:', error)
+    }
+  }
+
+  const getFilteredSubscriptions = () => {
+    let filtered = subscriptions
+
+    if (filter !== 'all') {
+      filtered = filtered.filter(sub => sub.status === filter)
+    }
+
+    // Sort subscriptions
+    switch (sortBy) {
+      case 'nextDelivery':
+        filtered.sort((a, b) => new Date(a.nextDelivery).getTime() - new Date(b.nextDelivery).getTime())
+        break
+      case 'created':
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        break
+      case 'name':
+        filtered.sort((a, b) => a.productName.localeCompare(b.productName))
+        break
+    }
+
+    return filtered
+  }
+
+  const getSubscriptionStats = () => {
+    const active = subscriptions.filter(sub => sub.status === 'active').length
+    const paused = subscriptions.filter(sub => sub.status === 'paused').length
+    const totalSavings = subscriptions.reduce((sum, sub) => sum + (sub.savings * sub.totalDeliveries), 0)
+    const monthlyValue = subscriptions
+      .filter(sub => sub.status === 'active')
+      .reduce((sum, sub) => sum + (sub.price * (4 / sub.frequency)), 0) // Approximate monthly value
+
+    const nextDeliveries = subscriptions
+      .filter(sub => sub.status === 'active')
+      .sort((a, b) => new Date(a.nextDelivery).getTime() - new Date(b.nextDelivery).getTime())
+      .slice(0, 3)
+
+    return { active, paused, totalSavings, monthlyValue, nextDeliveries }
+  }
+
+  const filteredSubscriptions = getFilteredSubscriptions()
+  const stats = getSubscriptionStats()
+
+  if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse max-w-6xl mx-auto">
-          <div className="h-8 bg-gray-200 rounded mb-6"></div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
+      <div className={`space-y-6 ${className}`}>
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded-lg mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-48 bg-gray-200 rounded-lg"></div>
             ))}
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">I miei abbonamenti</h1>
-          <p className="text-gray-600 mt-2">
-            Gestisci i tuoi abbonamenti ricorrenti e ottimizza le consegne
+          <h1 className="text-3xl font-bold text-gray-900">I tuoi abbonamenti</h1>
+          <p className="text-gray-600 mt-1">
+            Gestisci le consegne automatiche per i tuoi cani
           </p>
         </div>
 
         <Button
-          onClick={() => setShowCreateModal(true)}
-          data-cta-id="subscriptions.create.button.click"
+          onClick={() => handleCreateSubscription(dogs[0]?.id || '')}
+          className="whitespace-nowrap"
+          data-cta-id="subscriptions.create"
         >
-          ➕ Nuovo abbonamento
+          <Plus className="w-4 h-4 mr-2" />
+          Nuovo abbonamento
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <Card padding="sm" className="text-center">
-          <div className="text-2xl font-bold text-orange-600">
-            {subscriptions.filter(sub => sub.status === 'active').length}
-          </div>
-          <div className="text-sm text-gray-600">Abbonamenti attivi</div>
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Abbonamenti attivi</p>
+                <p className="text-3xl font-bold text-green-600">{stats.active}</p>
+              </div>
+              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Package className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
-        <Card padding="sm" className="text-center">
-          <div className="text-2xl font-bold text-green-600">
-            €{getTotalMonthlySavings().toFixed(2)}
-          </div>
-          <div className="text-sm text-gray-600">Risparmio mensile</div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">In pausa</p>
+                <p className="text-3xl font-bold text-orange-600">{stats.paused}</p>
+              </div>
+              <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <Pause className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
-        <Card padding="sm" className="text-center">
-          <div className="text-2xl font-bold text-blue-600">
-            {getUpcomingDeliveries().length}
-          </div>
-          <div className="text-sm text-gray-600">Consegne prossime</div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Risparmi totali</p>
+                <p className="text-3xl font-bold text-blue-600">€{stats.totalSavings.toFixed(2)}</p>
+              </div>
+              <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
-        <Card padding="sm" className="text-center">
-          <div className="text-2xl font-bold text-purple-600">
-            {subscriptions.reduce((total, sub) => total + sub.totalDeliveries, 0)}
-          </div>
-          <div className="text-sm text-gray-600">Consegne totali</div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Valore mensile</p>
+                <p className="text-3xl font-bold text-purple-600">€{stats.monthlyValue.toFixed(2)}</p>
+              </div>
+              <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
         </Card>
       </div>
 
-      {/* Upcoming Deliveries */}
-      {getUpcomingDeliveries().length > 0 && (
-        <Card className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Prossime consegne (30 giorni)
-          </h2>
+      {/* Next Deliveries */}
+      {stats.nextDeliveries.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              Prossime consegne
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.nextDeliveries.map(subscription => {
+                const daysUntil = Math.ceil((new Date(subscription.nextDelivery).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+                const dog = dogs.find(d => d.id === subscription.dogId)
 
-          <div className="space-y-3">
-            {getUpcomingDeliveries().map((delivery) => {
-              const subscription = subscriptions.find(sub => sub.id === delivery.subscriptionId);
-              if (!subscription) return null;
-
-              const deliveryDate = new Date(delivery.scheduledDate);
-              const daysUntil = Math.ceil((deliveryDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-
-              return (
-                <div key={delivery.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden">
-                      {subscription.productImage && (
-                        <img
-                          src={subscription.productImage}
-                          alt={subscription.productName}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+                return (
+                  <div key={subscription.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={subscription.productImage}
+                        alt={subscription.productName}
+                        className="w-12 h-12 rounded-lg object-cover bg-gray-100"
+                      />
+                      <div>
+                        <p className="font-medium text-gray-900">{subscription.productName}</p>
+                        <p className="text-sm text-gray-600">
+                          Per {dog?.name} • {subscription.formatSize}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">{subscription.productName}</h3>
-                      <p className="text-sm text-gray-600">Quantità: {delivery.quantity}</p>
+
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-900">
+                        {new Date(subscription.nextDelivery).toLocaleDateString('it-IT')}
+                      </p>
+                      <p className={`text-xs ${
+                        daysUntil <= 3 ? 'text-orange-600' :
+                        daysUntil <= 7 ? 'text-yellow-600' : 'text-gray-600'
+                      }`}>
+                        {daysUntil <= 0 ? 'Oggi' :
+                         daysUntil === 1 ? 'Domani' :
+                         `Tra ${daysUntil} giorni`}
+                      </p>
                     </div>
                   </div>
-
-                  <div className="text-right">
-                    <div className="font-semibold text-gray-900">
-                      {deliveryDate.toLocaleDateString('it-IT')}
-                    </div>
-                    <div className={`text-sm ${
-                      daysUntil <= 3 ? 'text-orange-600' :
-                      daysUntil <= 7 ? 'text-yellow-600' : 'text-green-600'
-                    }`}>
-                      {daysUntil === 0 ? 'Oggi' :
-                       daysUntil === 1 ? 'Domani' :
-                       `Fra ${daysUntil} giorni`}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                )
+              })}
+            </div>
+          </CardContent>
         </Card>
       )}
 
-      {/* Filters */}
-      <div className="flex items-center space-x-4 mb-6">
-        <span className="text-sm font-medium text-gray-700">Filtra per stato:</span>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-        >
-          <option value="all">Tutti</option>
-          <option value="active">Attivi</option>
-          <option value="paused">In pausa</option>
-          <option value="cancelling">In cancellazione</option>
-          <option value="cancelled">Cancellati</option>
-        </select>
+      {/* Filters and Controls */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              {/* Status Filter */}
+              <div className="flex gap-1">
+                {[
+                  { value: 'all', label: 'Tutti', count: subscriptions.length },
+                  { value: 'active', label: 'Attivi', count: stats.active },
+                  { value: 'paused', label: 'In pausa', count: stats.paused },
+                  { value: 'cancelled', label: 'Cancellati', count: subscriptions.filter(s => s.status === 'cancelled').length }
+                ].map(option => (
+                  <Button
+                    key={option.value}
+                    variant={filter === option.value ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter(option.value as any)}
+                    className="relative"
+                  >
+                    {option.label}
+                    {option.count > 0 && (
+                      <Badge variant="secondary" className="ml-2 h-5 w-5 rounded-full p-0 text-xs">
+                        {option.count}
+                      </Badge>
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </div>
 
-        <div className="text-sm text-gray-600">
-          {filteredSubscriptions.length} abbonamenti trovati
-        </div>
-      </div>
+            <div className="flex items-center gap-2">
+              {/* Sort */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
+              >
+                <option value="nextDelivery">Prossima consegna</option>
+                <option value="created">Data creazione</option>
+                <option value="name">Nome prodotto</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Subscriptions Grid */}
+      {/* Subscriptions List */}
       {filteredSubscriptions.length === 0 ? (
-        <Card className="text-center py-12">
-          <div className="text-6xl mb-4">📦</div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {filterStatus === 'all' ? 'Nessun abbonamento' : `Nessun abbonamento ${filterStatus}`}
-          </h3>
-          <p className="text-gray-600 mb-6">
-            {filterStatus === 'all'
-              ? 'Crea il tuo primo abbonamento per ricevere i prodotti del tuo cane automaticamente.'
-              : 'Prova a cambiare i filtri per vedere altri abbonamenti.'
-            }
-          </p>
-          {filterStatus === 'all' && (
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              data-cta-id="subscriptions.empty_create.button.click"
-            >
-              Crea primo abbonamento
-            </Button>
-          )}
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {filter === 'all' ? 'Nessun abbonamento' : `Nessun abbonamento ${filter}`}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {filter === 'all'
+                ? 'Crea il tuo primo abbonamento per ricevere automaticamente i prodotti per i tuoi cani.'
+                : 'Non ci sono abbonamenti con questo stato.'}
+            </p>
+            {filter === 'all' && (
+              <Button
+                onClick={() => handleCreateSubscription(dogs[0]?.id || '')}
+                data-cta-id="subscriptions.create.empty_state"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Crea abbonamento
+              </Button>
+            )}
+          </CardContent>
         </Card>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSubscriptions.map((subscription) => (
+        <div className="space-y-4">
+          {filteredSubscriptions.map(subscription => (
             <SubscriptionCard
               key={subscription.id}
               subscription={subscription}
-              onUpdate={handleSubscriptionUpdate}
-              onDelete={handleSubscriptionDelete}
-              nextDelivery={nextDeliveries.find(d => d.subscriptionId === subscription.id)}
+              dog={dogs.find(d => d.id === subscription.dogId)}
+              onUpdate={(updates) => handleSubscriptionUpdate(subscription.id, updates)}
+              onDelete={() => handleSubscriptionUpdate(subscription.id, { status: 'cancelled' })}
             />
           ))}
         </div>
       )}
 
       {/* Create Subscription Modal */}
-      {showCreateModal && (
-        <CreateSubscriptionModal
-          onClose={() => setShowCreateModal(false)}
-          onSuccess={(newSubscription) => {
-            setSubscriptions(prev => [newSubscription, ...prev]);
-            setShowCreateModal(false);
-            fetchSubscriptions(); // Refresh to get updated data
-          }}
-        />
-      )}
+      <CreateSubscriptionModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        selectedDog={selectedDog}
+        dogs={dogs}
+        onSubscriptionCreated={(newSubscription) => {
+          setSubscriptions(current => [...current, newSubscription])
+          setShowCreateModal(false)
+        }}
+      />
     </div>
-  );
+  )
 }

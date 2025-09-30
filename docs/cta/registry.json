@@ -1,364 +1,1435 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2024-01-01T00:00:00Z",
-  "description": "Registry completo di tutti i CTA presenti nell'applicazione PiùCane",
-  "cta": {
-    "onboarding": {
-      "onboarding-start": {
-        "id": "onboarding-start",
-        "description": "Inizio processo di onboarding",
-        "location": "Landing page",
-        "component": "HeroSection",
-        "ga4Event": "onboarding_started",
-        "priority": "high"
-      },
-      "onboarding-next-step": {
-        "id": "onboarding-next-step",
-        "description": "Prossimo step nell'onboarding",
-        "location": "Onboarding flow",
-        "component": "StepNavigation",
-        "ga4Event": "onboarding_step_completed",
-        "priority": "high"
-      },
-      "onboarding-complete": {
-        "id": "onboarding-complete",
-        "description": "Completamento onboarding",
-        "location": "Onboarding final step",
-        "component": "CompletionScreen",
-        "ga4Event": "onboarding_completed",
-        "priority": "critical"
-      }
+  "lastUpdated": "2025-09-30",
+  "description": "Registry completo di tutti i CTA presenti nell'applicazione PiùCane PWA utente con mapping GA4",
+  "ctas": {
+    "onboarding.next.button.click": {
+      "page": "onboarding",
+      "section": "stepper",
+      "element": "next_button",
+      "action": "click",
+      "description": "Next step button in onboarding flow",
+      "ga4Event": "onboarding_step_next",
+      "parameters": ["step", "completion_time"],
+      "priority": "critical"
     },
-    "dogs": {
-      "add-dog": {
-        "id": "add-dog",
-        "description": "Aggiungi nuovo cane",
-        "location": "Dogs dashboard",
-        "component": "AddDogButton",
-        "ga4Event": "dog_add_started",
-        "priority": "high"
-      },
-      "dog-profile-save": {
-        "id": "dog-profile-save",
-        "description": "Salva profilo cane",
-        "location": "Dog profile form",
-        "component": "SaveButton",
-        "ga4Event": "dog_profile_saved",
-        "priority": "high"
-      },
-      "vaccination-add": {
-        "id": "vaccination-add",
-        "description": "Aggiungi vaccinazione",
-        "location": "Dog profile",
-        "component": "VaccinationForm",
-        "ga4Event": "vaccination_added",
-        "priority": "medium"
-      },
-      "vet-select": {
-        "id": "vet-select",
-        "description": "Seleziona veterinario",
-        "location": "Dog profile",
-        "component": "VetSelector",
-        "ga4Event": "veterinarian_selected",
-        "priority": "medium"
-      }
+    "onboarding.prev.button.click": {
+      "page": "onboarding",
+      "section": "stepper",
+      "element": "prev_button",
+      "action": "click",
+      "description": "Previous step button in onboarding flow",
+      "ga4Event": "onboarding_step_back",
+      "parameters": ["step"],
+      "priority": "high"
     },
-    "ecommerce": {
-      "product-view": {
-        "id": "product-view",
-        "description": "Visualizza prodotto",
-        "location": "Product listing",
-        "component": "ProductCard",
-        "ga4Event": "view_item",
-        "priority": "medium"
-      },
-      "add-to-cart": {
-        "id": "add-to-cart",
-        "description": "Aggiungi al carrello",
-        "location": "Product page",
-        "component": "AddToCartButton",
-        "ga4Event": "add_to_cart",
-        "priority": "high"
-      },
-      "cart-view": {
-        "id": "cart-view",
-        "description": "Visualizza carrello",
-        "location": "Header/Navigation",
-        "component": "CartIcon",
-        "ga4Event": "view_cart",
-        "priority": "medium"
-      },
-      "checkout-start": {
-        "id": "checkout-start",
-        "description": "Inizia checkout",
-        "location": "Cart page",
-        "component": "CheckoutButton",
-        "ga4Event": "begin_checkout",
-        "priority": "critical"
-      },
-      "checkout-complete": {
-        "id": "checkout-complete",
-        "description": "Completa acquisto",
-        "location": "Checkout page",
-        "component": "PaymentForm",
-        "ga4Event": "purchase",
-        "priority": "critical"
-      }
+    "onboarding.finish.button.click": {
+      "page": "onboarding",
+      "section": "stepper",
+      "element": "finish_button",
+      "action": "click",
+      "description": "Complete onboarding button",
+      "ga4Event": "onboarding_complete",
+      "parameters": ["dogs_count", "completion_time"],
+      "priority": "critical"
     },
-    "subscriptions": {
-      "subscription-start": {
-        "id": "subscription-start",
-        "description": "Inizia abbonamento",
-        "location": "Subscription page",
-        "component": "SubscriptionCard",
-        "ga4Event": "subscription_started",
-        "priority": "critical"
-      },
-      "subscription-manage": {
-        "id": "subscription-manage",
-        "description": "Gestisci abbonamento",
-        "location": "Account page",
-        "component": "SubscriptionManager",
-        "ga4Event": "subscription_manage_clicked",
-        "priority": "medium"
-      },
-      "subscription-pause": {
-        "id": "subscription-pause",
-        "description": "Pausa abbonamento",
-        "location": "Subscription management",
-        "component": "PauseButton",
-        "ga4Event": "subscription_paused",
-        "priority": "medium"
-      },
-      "subscription-cancel": {
-        "id": "subscription-cancel",
-        "description": "Cancella abbonamento",
-        "location": "Subscription management",
-        "component": "CancelButton",
-        "ga4Event": "subscription_cancelled",
-        "priority": "high"
-      }
+    "onboarding.add_dog.button.click": {
+      "page": "onboarding",
+      "section": "completion",
+      "element": "add_dog_button",
+      "action": "click",
+      "description": "Add another dog after onboarding",
+      "ga4Event": "dog_add_intent",
+      "parameters": ["source"],
+      "priority": "high"
     },
-    "gamification": {
-      "mission-start": {
-        "id": "mission-start",
-        "description": "Inizia missione",
-        "location": "Missions page",
-        "component": "MissionCard",
-        "ga4Event": "mission_started",
-        "priority": "medium"
-      },
-      "mission-complete": {
-        "id": "mission-complete",
-        "description": "Completa missione",
-        "location": "Mission tracking",
-        "component": "CompleteButton",
-        "ga4Event": "mission_completed",
-        "priority": "medium"
-      },
-      "badge-claim": {
-        "id": "badge-claim",
-        "description": "Riscatta badge",
-        "location": "Achievements page",
-        "component": "BadgeCard",
-        "ga4Event": "badge_claimed",
-        "priority": "low"
-      },
-      "reward-redeem": {
-        "id": "reward-redeem",
-        "description": "Riscatta ricompensa",
-        "location": "Rewards page",
-        "component": "RewardCard",
-        "ga4Event": "reward_redeemed",
-        "priority": "medium"
-      }
+    "home.header.login.click": {
+      "page": "home",
+      "section": "header",
+      "element": "login_link",
+      "action": "click",
+      "description": "Accesso da header non autenticato",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "source_page"],
+      "priority": "high"
     },
-    "ai": {
-      "ai-chat-start": {
-        "id": "ai-chat-start",
-        "description": "Inizia chat con AI",
-        "location": "AI page",
-        "component": "AgentSelector",
-        "ga4Event": "ai_chat_started",
-        "priority": "high"
-      },
-      "ai-vet-select": {
-        "id": "ai-vet-select",
-        "description": "Seleziona AI Veterinario",
-        "location": "AI page",
-        "component": "VetAgentCard",
-        "ga4Event": "ai_vet_selected",
-        "priority": "high"
-      },
-      "ai-educator-select": {
-        "id": "ai-educator-select",
-        "description": "Seleziona AI Educatore",
-        "location": "AI page",
-        "component": "EducatorAgentCard",
-        "ga4Event": "ai_educator_selected",
-        "priority": "high"
-      },
-      "ai-groomer-select": {
-        "id": "ai-groomer-select",
-        "description": "Seleziona AI Groomer",
-        "location": "AI page",
-        "component": "GroomerAgentCard",
-        "ga4Event": "ai_groomer_selected",
-        "priority": "high"
-      },
-      "ai-message-send": {
-        "id": "ai-message-send",
-        "description": "Invia messaggio all'AI",
-        "location": "AI chat",
-        "component": "MessageInput",
-        "ga4Event": "ai_message_sent",
-        "priority": "medium"
-      }
+    "home.hero.start.click": {
+      "page": "home",
+      "section": "hero",
+      "element": "start_button",
+      "action": "click",
+      "description": "CTA principale - inizia onboarding",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "source_page"],
+      "priority": "critical"
     },
-    "auth": {
-      "login-start": {
-        "id": "login-start",
-        "description": "Inizia login",
-        "location": "Login page",
-        "component": "LoginForm",
-        "ga4Event": "login_started",
-        "priority": "high"
-      },
-      "login-google": {
-        "id": "login-google",
-        "description": "Login con Google",
-        "location": "Login page",
-        "component": "GoogleAuthButton",
-        "ga4Event": "login_google",
-        "priority": "medium"
-      },
-      "register-start": {
-        "id": "register-start",
-        "description": "Inizia registrazione",
-        "location": "Register page",
-        "component": "RegisterForm",
-        "ga4Event": "register_started",
-        "priority": "high"
-      },
-      "logout": {
-        "id": "logout",
-        "description": "Logout utente",
-        "location": "User menu",
-        "component": "LogoutButton",
-        "ga4Event": "logout",
-        "priority": "low"
-      }
+    "home.hero.demo.click": {
+      "page": "home",
+      "section": "hero",
+      "element": "demo_button",
+      "action": "click",
+      "description": "CTA visualizza demo pubblica",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "source_page"],
+      "priority": "medium"
     },
-    "navigation": {
-      "nav-home": {
-        "id": "nav-home",
-        "description": "Navigazione home",
-        "location": "Main navigation",
-        "component": "NavigationMenu",
-        "ga4Event": "nav_home_clicked",
-        "priority": "low"
-      },
-      "nav-dogs": {
-        "id": "nav-dogs",
-        "description": "Navigazione cani",
-        "location": "Main navigation",
-        "component": "NavigationMenu",
-        "ga4Event": "nav_dogs_clicked",
-        "priority": "low"
-      },
-      "nav-shop": {
-        "id": "nav-shop",
-        "description": "Navigazione shop",
-        "location": "Main navigation",
-        "component": "NavigationMenu",
-        "ga4Event": "nav_shop_clicked",
-        "priority": "medium"
-      },
-      "nav-missions": {
-        "id": "nav-missions",
-        "description": "Navigazione missioni",
-        "location": "Main navigation",
-        "component": "NavigationMenu",
-        "ga4Event": "nav_missions_clicked",
-        "priority": "low"
-      },
-      "nav-ai": {
-        "id": "nav-ai",
-        "description": "Navigazione AI",
-        "location": "Main navigation",
-        "component": "NavigationMenu",
-        "ga4Event": "nav_ai_clicked",
-        "priority": "medium"
-      }
+    "home.nav.ai_chat.click": {
+      "page": "home",
+      "section": "primary_navigation",
+      "element": "ai_chat_link",
+      "action": "click",
+      "description": "Navigazione verso AI Chat",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "section"],
+      "priority": "medium"
     },
-    "admin": {
-      "admin-login": {
-        "id": "admin-login",
-        "description": "Login admin",
-        "location": "Admin login page",
-        "component": "AdminLoginForm",
-        "ga4Event": "admin_login",
-        "priority": "critical"
-      },
-      "admin-product-create": {
-        "id": "admin-product-create",
-        "description": "Crea prodotto (admin)",
-        "location": "Admin products",
-        "component": "ProductForm",
-        "ga4Event": "admin_product_created",
-        "priority": "medium"
-      },
-      "admin-user-manage": {
-        "id": "admin-user-manage",
-        "description": "Gestisci utente (admin)",
-        "location": "Admin users",
-        "component": "UserManager",
-        "ga4Event": "admin_user_managed",
-        "priority": "medium"
-      },
-      "admin-analytics-view": {
-        "id": "admin-analytics-view",
-        "description": "Visualizza analytics (admin)",
-        "location": "Admin dashboard",
-        "component": "AnalyticsDashboard",
-        "ga4Event": "admin_analytics_viewed",
-        "priority": "low"
-      }
+    "home.nav.missions.click": {
+      "page": "home",
+      "section": "primary_navigation",
+      "element": "missions_link",
+      "action": "click",
+      "description": "Navigazione verso missioni",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "section"],
+      "priority": "medium"
+    },
+    "home.nav.shop.click": {
+      "page": "home",
+      "section": "primary_navigation",
+      "element": "shop_link",
+      "action": "click",
+      "description": "Navigazione verso shop",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "section"],
+      "priority": "medium"
+    },
+    "home.nav.account.click": {
+      "page": "home",
+      "section": "primary_navigation",
+      "element": "account_link",
+      "action": "click",
+      "description": "Navigazione verso area account",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "section"],
+      "priority": "medium"
+    },
+    "home.header.settings.click": {
+      "page": "home",
+      "section": "header",
+      "element": "settings_button",
+      "action": "click",
+      "description": "Accesso rapido impostazioni account",
+      "ga4Event": "navigation_click",
+      "parameters": ["link_text", "source_page"],
+      "priority": "medium"
+    },
+    "account.notifications.save.button.click": {
+      "page": "account",
+      "section": "notifications",
+      "element": "save_button",
+      "action": "click",
+      "description": "Save notification preferences",
+      "ga4Event": "notification_prefs_update",
+      "parameters": ["channels", "categories", "quiet_hours"],
+      "priority": "high"
+    },
+    "account.address.add.button.click": {
+      "page": "account",
+      "section": "addresses",
+      "element": "add_button",
+      "action": "click",
+      "description": "Add new shipping address",
+      "ga4Event": "address_add",
+      "parameters": ["label"],
+      "priority": "high"
+    },
+    "account.address.set_default.button.click": {
+      "page": "account",
+      "section": "addresses",
+      "element": "set_default_button",
+      "action": "click",
+      "description": "Set address as default",
+      "ga4Event": "address_set_default",
+      "parameters": ["address_id"],
+      "priority": "medium"
+    },
+    "payment.add_card.button.click": {
+      "page": "account",
+      "section": "payment_methods",
+      "element": "add_card_button",
+      "action": "click",
+      "description": "Add new payment method",
+      "ga4Event": "payment_method_add_intent",
+      "parameters": [],
+      "priority": "high"
+    },
+    "dog.weight.update.button.click": {
+      "page": "dog_profile",
+      "section": "health",
+      "element": "weight_update_button",
+      "action": "click",
+      "description": "Update dog weight",
+      "ga4Event": "dog_update_weight",
+      "parameters": ["dog_id", "weight", "weight_change"],
+      "priority": "medium"
+    },
+    "dog.vaccine.add.button.click": {
+      "page": "dog_profile",
+      "section": "health",
+      "element": "vaccine_add_button",
+      "action": "click",
+      "description": "Add vaccine record",
+      "ga4Event": "vaccine_add_intent",
+      "parameters": ["dog_id", "vaccine_type"],
+      "priority": "medium"
+    },
+    "dog.vet.link.button.click": {
+      "page": "dog_profile",
+      "section": "veterinarians",
+      "element": "link_vet_button",
+      "action": "click",
+      "description": "Link veterinarian to dog",
+      "ga4Event": "vet_link_intent",
+      "parameters": ["dog_id"],
+      "priority": "medium"
+    },
+    "cart.item.added": {
+      "page": "cart",
+      "section": "items",
+      "element": "add_item_button",
+      "action": "click",
+      "description": "Aggiunge un prodotto al carrello",
+      "ga4Event": "add_to_cart",
+      "parameters": ["item_id", "quantity", "is_subscription"],
+      "priority": "critical"
+    },
+    "cart.item.updated": {
+      "page": "cart",
+      "section": "items",
+      "element": "quantity_chip",
+      "action": "click",
+      "description": "Aggiorna quantità prodotto esistente",
+      "ga4Event": "add_to_cart",
+      "parameters": ["item_id", "new_quantity"],
+      "priority": "high"
+    },
+    "cart.quantity.updated": {
+      "page": "cart",
+      "section": "items",
+      "element": "quantity_input",
+      "action": "change",
+      "description": "Modifica manuale quantità articolo",
+      "ga4Event": "cart_update",
+      "parameters": ["product_id", "new_quantity"],
+      "priority": "high"
+    },
+    "cart.item.removed": {
+      "page": "cart",
+      "section": "items",
+      "element": "remove_button",
+      "action": "click",
+      "description": "Rimuove articolo dal carrello",
+      "ga4Event": "remove_from_cart",
+      "parameters": ["product_id"],
+      "priority": "high"
+    },
+    "cart.cleared": {
+      "page": "cart",
+      "section": "actions",
+      "element": "clear_button",
+      "action": "click",
+      "description": "Svuota completamente il carrello",
+      "ga4Event": "cart_clear",
+      "parameters": ["previous_item_count"],
+      "priority": "medium"
+    },
+    "cart.subscription.updated": {
+      "page": "cart",
+      "section": "items",
+      "element": "subscription_toggle",
+      "action": "change",
+      "description": "Aggiorna frequenza di abbonamento",
+      "ga4Event": "subscription_change",
+      "parameters": ["product_id", "subscription_frequency"],
+      "priority": "high"
+    },
+    "cart.dosage.updated": {
+      "page": "cart",
+      "section": "personalization",
+      "element": "dosage_input",
+      "action": "change",
+      "description": "Personalizza dosaggio prodotto",
+      "ga4Event": "dosage_personalized",
+      "parameters": ["product_id", "daily_amount", "duration_days"],
+      "priority": "medium"
+    },
+    "checkout.started": {
+      "page": "checkout",
+      "section": "lifecycle",
+      "element": "page_load",
+      "action": "start",
+      "description": "Inizio del processo di checkout",
+      "ga4Event": "begin_checkout",
+      "parameters": ["item_count", "order_value"],
+      "priority": "critical"
+    },
+    "checkout.step.next": {
+      "page": "checkout",
+      "section": "stepper",
+      "element": "next_button",
+      "action": "click",
+      "description": "Avanza allo step successivo del checkout",
+      "ga4Event": "checkout_step",
+      "parameters": ["from_step", "to_step", "step_id"],
+      "priority": "high"
+    },
+    "checkout.order.submitted": {
+      "page": "checkout",
+      "section": "review",
+      "element": "submit_order_button",
+      "action": "click",
+      "description": "Conferma ordine e invia pagamento",
+      "ga4Event": "purchase",
+      "parameters": ["order_id", "total_value", "item_count", "payment_method"],
+      "priority": "critical"
+    },
+    "orders.detail.open": {
+      "page": "orders",
+      "section": "list",
+      "element": "order_card",
+      "action": "click",
+      "description": "Open order detail",
+      "ga4Event": "order_view",
+      "parameters": ["order_id", "status"],
+      "priority": "medium"
+    },
+    "orders.issue.submit": {
+      "page": "order_detail",
+      "section": "issue_form",
+      "element": "submit_button",
+      "action": "click",
+      "description": "Submit order issue report",
+      "ga4Event": "order_issue_reported",
+      "parameters": ["order_id", "issue_type"],
+      "priority": "high"
+    },
+    "subs.change_date.button.open": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "change_date_button",
+      "action": "click",
+      "description": "Open change date modal",
+      "ga4Event": "subscription_change_date_intent",
+      "parameters": ["subscription_id"],
+      "priority": "high"
+    },
+    "subs.address_override.button.open": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "address_override_button",
+      "action": "click",
+      "description": "Open address override modal",
+      "ga4Event": "subscription_address_override_intent",
+      "parameters": ["subscription_id"],
+      "priority": "high"
+    },
+    "subs.skip.button.click": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "skip_button",
+      "action": "click",
+      "description": "Skip next subscription delivery",
+      "ga4Event": "subscription_skip",
+      "parameters": ["subscription_id", "next_delivery_date"],
+      "priority": "high"
+    },
+    "subs.pause.button.click": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "pause_button",
+      "action": "click",
+      "description": "Pause subscription",
+      "ga4Event": "subscription_pause_intent",
+      "parameters": ["subscription_id"],
+      "priority": "high"
+    },
+    "subs.cancel.button.click": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "cancel_button",
+      "action": "click",
+      "description": "Cancel subscription",
+      "ga4Event": "subscription_cancel_intent",
+      "parameters": ["subscription_id"],
+      "priority": "critical"
+    },
+    "inbox.open": {
+      "page": "inbox",
+      "section": "navigation",
+      "element": "inbox_tab",
+      "action": "click",
+      "description": "Open inbox page",
+      "ga4Event": "inbox_open",
+      "parameters": ["unread_count"],
+      "priority": "medium"
+    },
+    "inbox.message.click": {
+      "page": "inbox",
+      "section": "messages",
+      "element": "message_card",
+      "action": "click",
+      "description": "Open message detail",
+      "ga4Event": "notification_click",
+      "parameters": ["channel", "template_key", "message_id"],
+      "priority": "medium"
+    },
+    "chat.message.send.button.click": {
+      "page": "chat",
+      "section": "conversation",
+      "element": "send_button",
+      "action": "click",
+      "description": "Send chat message",
+      "ga4Event": "chat_message_sent",
+      "parameters": ["thread_id", "message_length", "has_attachments"],
+      "priority": "high"
+    },
+    "mission.complete.button.click": {
+      "page": "missions",
+      "section": "active",
+      "element": "complete_button",
+      "action": "click",
+      "description": "Complete mission",
+      "ga4Event": "mission_completed",
+      "parameters": ["mission_id", "xp", "completion_time"],
+      "priority": "medium"
+    },
+    "reward.redeem.button.click": {
+      "page": "rewards",
+      "section": "available",
+      "element": "redeem_button",
+      "action": "click",
+      "description": "Redeem reward",
+      "ga4Event": "reward_redeemed",
+      "parameters": ["reward_id", "reward_type", "value"],
+      "priority": "medium"
+    },
+    "dog.reminder.save.button.click": {
+      "page": "dog_profile",
+      "section": "reminders",
+      "element": "save_button",
+      "action": "click",
+      "description": "Save reminder settings",
+      "ga4Event": "reminder_set",
+      "parameters": ["dog_id", "reminder_type", "channel"],
+      "priority": "medium"
+    },
+    "pdp.subscribe.button.click": {
+      "page": "product_detail",
+      "section": "actions",
+      "element": "subscribe_button",
+      "action": "click",
+      "description": "Subscribe to product",
+      "ga4Event": "subscribe_click",
+      "parameters": ["sku", "dog_id", "cadence_days"],
+      "priority": "critical"
+    },
+    "navigation.tab.click": {
+      "page": "global",
+      "section": "navigation",
+      "element": "tab",
+      "action": "click",
+      "description": "Bottom navigation tab click",
+      "ga4Event": "navigation_click",
+      "parameters": ["tab_name", "previous_tab"],
+      "priority": "low"
+    },
+    "modal.close.button.click": {
+      "page": "global",
+      "section": "modal",
+      "element": "close_button",
+      "action": "click",
+      "description": "Close modal",
+      "ga4Event": "modal_closed",
+      "parameters": ["modal_type", "interaction_time"],
+      "priority": "low"
+    },
+    "error.retry.button.click": {
+      "page": "global",
+      "section": "error",
+      "element": "retry_button",
+      "action": "click",
+      "description": "Retry after error",
+      "ga4Event": "error_retry",
+      "parameters": ["error_type", "retry_count"],
+      "priority": "medium"
+    },
+    "pwa.install.button.click": {
+      "page": "global",
+      "section": "pwa",
+      "element": "install_button",
+      "action": "click",
+      "description": "Install PWA",
+      "ga4Event": "pwa_install_intent",
+      "parameters": ["source"],
+      "priority": "high"
+    },
+    "auth.login.button.click": {
+      "page": "login",
+      "section": "form",
+      "element": "login_button",
+      "action": "click",
+      "description": "Submit login form",
+      "ga4Event": "login",
+      "parameters": ["method"],
+      "priority": "critical"
+    },
+    "auth.register.button.click": {
+      "page": "register",
+      "section": "form",
+      "element": "register_button",
+      "action": "click",
+      "description": "Submit registration form",
+      "ga4Event": "sign_up",
+      "parameters": ["method"],
+      "priority": "critical"
+    },
+    "auth.logout.button.click": {
+      "page": "global",
+      "section": "header",
+      "element": "logout_button",
+      "action": "click",
+      "description": "User logout",
+      "ga4Event": "logout",
+      "parameters": [],
+      "priority": "high"
+    },
+    "profile.edit.button.click": {
+      "page": "profile",
+      "section": "personal_info",
+      "element": "edit_button",
+      "action": "click",
+      "description": "Enter profile edit mode",
+      "ga4Event": "profile_edit_start",
+      "parameters": ["section"],
+      "priority": "high"
+    },
+    "profile.save.button.click": {
+      "page": "profile",
+      "section": "personal_info",
+      "element": "save_button",
+      "action": "click",
+      "description": "Save profile changes",
+      "ga4Event": "profile_update",
+      "parameters": ["fields_updated"],
+      "priority": "high"
+    },
+    "gdpr.consent.update.click": {
+      "page": "privacy_settings",
+      "section": "consent_management",
+      "element": "update_consent_button",
+      "action": "click",
+      "description": "Update GDPR consent preferences",
+      "ga4Event": "gdpr_consent_update",
+      "parameters": ["consent_types"],
+      "priority": "high"
+    },
+    "gdpr.export.request.click": {
+      "page": "privacy_settings",
+      "section": "data_management",
+      "element": "export_data_button",
+      "action": "click",
+      "description": "Request GDPR data export",
+      "ga4Event": "gdpr_data_export",
+      "parameters": ["export_options"],
+      "priority": "medium"
+    },
+    "account.delete.request.click": {
+      "page": "privacy_settings",
+      "section": "data_management",
+      "element": "delete_account_button",
+      "action": "click",
+      "description": "Request account deletion",
+      "ga4Event": "account_delete_intent",
+      "parameters": [],
+      "priority": "critical"
+    },
+    "pet.profile.create": {
+      "page": "pet_onboarding",
+      "section": "form",
+      "element": "create_pet_button",
+      "action": "click",
+      "description": "Create new pet profile",
+      "ga4Event": "pet_profile_created",
+      "parameters": ["pet_breed", "pet_gender", "pet_weight"],
+      "priority": "critical"
+    },
+    "pet.profile.edit": {
+      "page": "pet_profile",
+      "section": "header",
+      "element": "edit_profile_button",
+      "action": "click",
+      "description": "Edit pet profile information",
+      "ga4Event": "pet_profile_edit_start",
+      "parameters": ["pet_id", "section"],
+      "priority": "high"
+    },
+    "pet.profile.save": {
+      "page": "pet_profile",
+      "section": "form",
+      "element": "save_profile_button",
+      "action": "click",
+      "description": "Save pet profile changes",
+      "ga4Event": "pet_profile_updated",
+      "parameters": ["pet_id", "fields_updated"],
+      "priority": "high"
+    },
+    "pet.photo.upload": {
+      "page": "pet_profile",
+      "section": "photos",
+      "element": "upload_photo_button",
+      "action": "click",
+      "description": "Upload new pet photo",
+      "ga4Event": "pet_photo_uploaded",
+      "parameters": ["pet_id", "file_size", "file_type"],
+      "priority": "medium"
+    },
+    "pet.weight.add": {
+      "page": "pet_profile",
+      "section": "health",
+      "element": "add_weight_button",
+      "action": "click",
+      "description": "Add new weight entry",
+      "ga4Event": "pet_weight_added",
+      "parameters": ["pet_id", "weight", "notes"],
+      "priority": "medium"
+    },
+    "pet.weight.update": {
+      "page": "pet_profile",
+      "section": "health",
+      "element": "update_weight_button",
+      "action": "click",
+      "description": "Update current pet weight",
+      "ga4Event": "pet_weight_updated",
+      "parameters": ["pet_id", "old_weight", "new_weight"],
+      "priority": "medium"
+    },
+    "pet.health.condition.add": {
+      "page": "pet_health",
+      "section": "conditions",
+      "element": "add_condition_button",
+      "action": "click",
+      "description": "Add new health condition",
+      "ga4Event": "health_condition_added",
+      "parameters": ["pet_id", "condition_category", "severity"],
+      "priority": "high"
+    },
+    "pet.health.condition.edit": {
+      "page": "pet_health",
+      "section": "conditions",
+      "element": "edit_condition_button",
+      "action": "click",
+      "description": "Edit existing health condition",
+      "ga4Event": "health_condition_updated",
+      "parameters": ["pet_id", "condition_id", "fields_updated"],
+      "priority": "high"
+    },
+    "pet.allergy.add": {
+      "page": "pet_health",
+      "section": "allergies",
+      "element": "add_allergy_button",
+      "action": "click",
+      "description": "Add new allergy record",
+      "ga4Event": "pet_allergy_added",
+      "parameters": ["pet_id", "allergy_type", "category", "severity"],
+      "priority": "high"
+    },
+    "pet.allergy.edit": {
+      "page": "pet_health",
+      "section": "allergies",
+      "element": "edit_allergy_button",
+      "action": "click",
+      "description": "Edit existing allergy record",
+      "ga4Event": "pet_allergy_updated",
+      "parameters": ["pet_id", "allergy_id", "fields_updated"],
+      "priority": "high"
+    },
+    "pet.vaccination.add": {
+      "page": "pet_health",
+      "section": "vaccinations",
+      "element": "add_vaccination_button",
+      "action": "click",
+      "description": "Add new vaccination record",
+      "ga4Event": "vaccination_scheduled",
+      "parameters": ["pet_id", "vaccination_name", "vaccination_type"],
+      "priority": "high"
+    },
+    "pet.vaccination.complete": {
+      "page": "pet_health",
+      "section": "vaccinations",
+      "element": "complete_vaccination_button",
+      "action": "click",
+      "description": "Mark vaccination as completed",
+      "ga4Event": "vaccination_completed",
+      "parameters": ["pet_id", "vaccination_id", "veterinarian"],
+      "priority": "high"
+    },
+    "pet.veterinarian.add": {
+      "page": "veterinarians",
+      "section": "directory",
+      "element": "add_vet_button",
+      "action": "click",
+      "description": "Add new veterinarian to directory",
+      "ga4Event": "veterinarian_added",
+      "parameters": ["vet_specializations", "is_primary"],
+      "priority": "medium"
+    },
+    "pet.veterinarian.assign": {
+      "page": "pet_profile",
+      "section": "veterinarians",
+      "element": "assign_vet_button",
+      "action": "click",
+      "description": "Assign veterinarian to pet",
+      "ga4Event": "veterinarian_assigned",
+      "parameters": ["pet_id", "veterinarian_id", "relationship"],
+      "priority": "medium"
+    },
+    "pet.veterinarian.appointment.schedule": {
+      "page": "pet_profile",
+      "section": "veterinarians",
+      "element": "schedule_appointment_button",
+      "action": "click",
+      "description": "Schedule appointment with veterinarian",
+      "ga4Event": "vet_appointment_scheduled",
+      "parameters": ["pet_id", "veterinarian_id", "appointment_type"],
+      "priority": "high"
+    },
+    "pet.routine.create": {
+      "page": "pet_profile",
+      "section": "routines",
+      "element": "create_routine_button",
+      "action": "click",
+      "description": "Create new pet routine",
+      "ga4Event": "pet_routine_created",
+      "parameters": ["pet_id", "routine_type", "frequency_type"],
+      "priority": "medium"
+    },
+    "pet.routine.edit": {
+      "page": "pet_profile",
+      "section": "routines",
+      "element": "edit_routine_button",
+      "action": "click",
+      "description": "Edit existing pet routine",
+      "ga4Event": "pet_routine_updated",
+      "parameters": ["pet_id", "routine_id", "fields_updated"],
+      "priority": "medium"
+    },
+    "pet.routine.complete": {
+      "page": "pet_profile",
+      "section": "routines",
+      "element": "complete_routine_button",
+      "action": "click",
+      "description": "Mark routine as completed",
+      "ga4Event": "pet_routine_completed",
+      "parameters": ["pet_id", "routine_id", "completion_time"],
+      "priority": "medium"
+    },
+    "pet.routine.skip": {
+      "page": "pet_profile",
+      "section": "routines",
+      "element": "skip_routine_button",
+      "action": "click",
+      "description": "Skip routine for today",
+      "ga4Event": "pet_routine_skipped",
+      "parameters": ["pet_id", "routine_id", "skip_reason"],
+      "priority": "low"
+    },
+    "pet.nutrition.calculate": {
+      "page": "pet_profile",
+      "section": "nutrition",
+      "element": "calculate_nutrition_button",
+      "action": "click",
+      "description": "Calculate nutritional needs",
+      "ga4Event": "pet_nutrition_calculated",
+      "parameters": ["pet_id", "weight", "age_months"],
+      "priority": "medium"
+    },
+    "pet.food.recommendation.view": {
+      "page": "pet_profile",
+      "section": "nutrition",
+      "element": "view_recommendations_button",
+      "action": "click",
+      "description": "View food recommendations",
+      "ga4Event": "food_recommendation_viewed",
+      "parameters": ["pet_id", "recommendation_count"],
+      "priority": "medium"
+    },
+    "commerce.product.search": {
+      "page": "shop",
+      "section": "search",
+      "element": "search_input",
+      "action": "submit",
+      "description": "Search for products",
+      "ga4Event": "search",
+      "parameters": ["search_term", "filters", "result_count"],
+      "priority": "high"
+    },
+    "commerce.product.view": {
+      "page": "product_detail",
+      "section": "product",
+      "element": "product_card",
+      "action": "click",
+      "description": "View product detail",
+      "ga4Event": "view_item",
+      "parameters": ["product_id", "category", "brand", "price"],
+      "priority": "high"
+    },
+    "commerce.product.add_to_cart": {
+      "page": "product_detail",
+      "section": "actions",
+      "element": "add_to_cart_button",
+      "action": "click",
+      "description": "Add product to cart",
+      "ga4Event": "add_to_cart",
+      "parameters": ["product_id", "format_id", "quantity", "price"],
+      "priority": "critical"
+    },
+    "commerce.cart.view": {
+      "page": "cart",
+      "section": "navigation",
+      "element": "cart_icon",
+      "action": "click",
+      "description": "View shopping cart",
+      "ga4Event": "view_cart",
+      "parameters": ["item_count", "total_value"],
+      "priority": "high"
+    },
+    "commerce.cart.item.remove": {
+      "page": "cart",
+      "section": "items",
+      "element": "remove_item_button",
+      "action": "click",
+      "description": "Remove item from cart",
+      "ga4Event": "remove_from_cart",
+      "parameters": ["product_id", "quantity"],
+      "priority": "high"
+    },
+    "commerce.cart.item.update": {
+      "page": "cart",
+      "section": "items",
+      "element": "quantity_selector",
+      "action": "change",
+      "description": "Update cart item quantity",
+      "ga4Event": "cart_item_update",
+      "parameters": ["product_id", "old_quantity", "new_quantity"],
+      "priority": "high"
+    },
+    "commerce.cart.clear": {
+      "page": "cart",
+      "section": "actions",
+      "element": "clear_cart_button",
+      "action": "click",
+      "description": "Clear all items from cart",
+      "ga4Event": "cart_clear",
+      "parameters": ["item_count", "total_value"],
+      "priority": "medium"
+    },
+    "commerce.checkout.begin": {
+      "page": "cart",
+      "section": "actions",
+      "element": "checkout_button",
+      "action": "click",
+      "description": "Begin checkout process",
+      "ga4Event": "begin_checkout",
+      "parameters": ["item_count", "total_value", "currency"],
+      "priority": "critical"
+    },
+    "commerce.checkout.step.shipping": {
+      "page": "checkout",
+      "section": "shipping",
+      "element": "continue_button",
+      "action": "click",
+      "description": "Complete shipping step",
+      "ga4Event": "checkout_progress",
+      "parameters": ["step", "shipping_method", "address_id"],
+      "priority": "critical"
+    },
+    "commerce.checkout.step.payment": {
+      "page": "checkout",
+      "section": "payment",
+      "element": "continue_button",
+      "action": "click",
+      "description": "Complete payment step",
+      "ga4Event": "checkout_progress",
+      "parameters": ["step", "payment_method", "save_method"],
+      "priority": "critical"
+    },
+    "commerce.order.place": {
+      "page": "checkout",
+      "section": "review",
+      "element": "place_order_button",
+      "action": "click",
+      "description": "Place order and complete purchase",
+      "ga4Event": "purchase",
+      "parameters": ["order_id", "total_value", "item_count", "payment_method"],
+      "priority": "critical"
+    },
+    "commerce.order.track": {
+      "page": "order_detail",
+      "section": "tracking",
+      "element": "track_order_button",
+      "action": "click",
+      "description": "Track order status",
+      "ga4Event": "order_track",
+      "parameters": ["order_id", "current_status"],
+      "priority": "high"
+    },
+    "commerce.order.cancel": {
+      "page": "order_detail",
+      "section": "actions",
+      "element": "cancel_order_button",
+      "action": "click",
+      "description": "Cancel order",
+      "ga4Event": "order_cancel",
+      "parameters": ["order_id", "reason", "refund_amount"],
+      "priority": "high"
+    },
+    "commerce.order.return": {
+      "page": "order_detail",
+      "section": "actions",
+      "element": "return_button",
+      "action": "click",
+      "description": "Initiate order return",
+      "ga4Event": "order_return_request",
+      "parameters": ["order_id", "items", "reason"],
+      "priority": "high"
+    },
+    "commerce.subscription.create": {
+      "page": "product_detail",
+      "section": "subscription",
+      "element": "subscribe_button",
+      "action": "click",
+      "description": "Create product subscription",
+      "ga4Event": "subscription_create",
+      "parameters": ["product_id", "frequency", "discount_percentage"],
+      "priority": "critical"
+    },
+    "commerce.subscription.modify": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "modify_button",
+      "action": "click",
+      "description": "Modify subscription settings",
+      "ga4Event": "subscription_modify",
+      "parameters": ["subscription_id", "field", "old_value", "new_value"],
+      "priority": "high"
+    },
+    "commerce.subscription.pause": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "pause_button",
+      "action": "click",
+      "description": "Pause subscription",
+      "ga4Event": "subscription_pause",
+      "parameters": ["subscription_id", "reason"],
+      "priority": "high"
+    },
+    "commerce.subscription.resume": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "resume_button",
+      "action": "click",
+      "description": "Resume paused subscription",
+      "ga4Event": "subscription_resume",
+      "parameters": ["subscription_id"],
+      "priority": "high"
+    },
+    "commerce.subscription.cancel": {
+      "page": "subscriptions",
+      "section": "management",
+      "element": "cancel_button",
+      "action": "click",
+      "description": "Cancel subscription",
+      "ga4Event": "subscription_cancel",
+      "parameters": ["subscription_id", "reason", "remaining_value"],
+      "priority": "critical"
+    },
+    "commerce.payment.method.add": {
+      "page": "account",
+      "section": "payment_methods",
+      "element": "add_payment_button",
+      "action": "click",
+      "description": "Add new payment method",
+      "ga4Event": "payment_method_add",
+      "parameters": ["method_type", "is_default"],
+      "priority": "high"
+    },
+    "commerce.payment.method.delete": {
+      "page": "account",
+      "section": "payment_methods",
+      "element": "delete_payment_button",
+      "action": "click",
+      "description": "Delete payment method",
+      "ga4Event": "payment_method_delete",
+      "parameters": ["method_id", "method_type"],
+      "priority": "medium"
+    },
+    "commerce.payment.method.default": {
+      "page": "account",
+      "section": "payment_methods",
+      "element": "set_default_button",
+      "action": "click",
+      "description": "Set payment method as default",
+      "ga4Event": "payment_method_set_default",
+      "parameters": ["method_id", "method_type"],
+      "priority": "medium"
+    },
+    "commerce.discount.apply": {
+      "page": "cart",
+      "section": "discounts",
+      "element": "apply_code_button",
+      "action": "click",
+      "description": "Apply discount code",
+      "ga4Event": "discount_apply",
+      "parameters": ["code", "discount_amount", "discount_type"],
+      "priority": "high"
+    },
+    "commerce.discount.remove": {
+      "page": "cart",
+      "section": "discounts",
+      "element": "remove_code_button",
+      "action": "click",
+      "description": "Remove applied discount code",
+      "ga4Event": "discount_remove",
+      "parameters": ["code", "discount_amount"],
+      "priority": "medium"
+    },
+    "commerce.wishlist.add": {
+      "page": "product_detail",
+      "section": "actions",
+      "element": "wishlist_button",
+      "action": "click",
+      "description": "Add product to wishlist",
+      "ga4Event": "wishlist_add",
+      "parameters": ["product_id", "category"],
+      "priority": "medium"
+    },
+    "commerce.wishlist.remove": {
+      "page": "wishlist",
+      "section": "items",
+      "element": "remove_button",
+      "action": "click",
+      "description": "Remove product from wishlist",
+      "ga4Event": "wishlist_remove",
+      "parameters": ["product_id"],
+      "priority": "low"
+    },
+    "commerce.review.submit": {
+      "page": "product_detail",
+      "section": "reviews",
+      "element": "submit_review_button",
+      "action": "click",
+      "description": "Submit product review",
+      "ga4Event": "review_submit",
+      "parameters": ["product_id", "rating", "review_length"],
+      "priority": "medium"
+    },
+    "commerce.filter.apply": {
+      "page": "shop",
+      "section": "filters",
+      "element": "filter_option",
+      "action": "click",
+      "description": "Apply product filter",
+      "ga4Event": "filter_apply",
+      "parameters": ["filter_type", "filter_value", "result_count"],
+      "priority": "medium"
+    },
+    "commerce.sort.change": {
+      "page": "shop",
+      "section": "sorting",
+      "element": "sort_dropdown",
+      "action": "change",
+      "description": "Change product sort order",
+      "ga4Event": "sort_change",
+      "parameters": ["sort_type", "sort_direction"],
+      "priority": "low"
+    },
+    "payment.intent.create": {
+      "page": "checkout",
+      "section": "payment",
+      "element": "payment_form",
+      "action": "submit",
+      "description": "Create payment intent",
+      "ga4Event": "payment_intent_created",
+      "parameters": ["amount", "currency", "payment_method_type"],
+      "priority": "critical"
+    },
+    "payment.method.save": {
+      "page": "account",
+      "section": "payment_methods",
+      "element": "save_payment_button",
+      "action": "click",
+      "description": "Save payment method for future use",
+      "ga4Event": "payment_method_attached",
+      "parameters": ["method_type", "is_default", "brand"],
+      "priority": "high"
+    },
+    "payment.retry.attempt": {
+      "page": "payment_failed",
+      "section": "recovery",
+      "element": "retry_payment_button",
+      "action": "click",
+      "description": "Retry failed payment",
+      "ga4Event": "payment_retry_attempted",
+      "parameters": ["failure_reason", "retry_count"],
+      "priority": "critical"
+    },
+    "payment.fraud.detected": {
+      "page": "checkout",
+      "section": "security",
+      "element": "fraud_check",
+      "action": "trigger",
+      "description": "Fraud detection triggered",
+      "ga4Event": "payment_fraud_detected",
+      "parameters": ["fraud_score", "reason"],
+      "priority": "critical"
+    },
+    "payment.refund.request": {
+      "page": "order_detail",
+      "section": "refunds",
+      "element": "request_refund_button",
+      "action": "click",
+      "description": "Request payment refund",
+      "ga4Event": "refund_processed",
+      "parameters": ["order_id", "amount", "reason"],
+      "priority": "high"
+    },
+    "payment.webhook.processed": {
+      "page": "webhook",
+      "section": "processing",
+      "element": "webhook_handler",
+      "action": "process",
+      "description": "Payment webhook processed",
+      "ga4Event": "payment_webhook_processed",
+      "parameters": ["event_type", "processing_time"],
+      "priority": "medium"
+    },
+    "payment.analytics.view": {
+      "page": "admin",
+      "section": "analytics",
+      "element": "payment_analytics_dashboard",
+      "action": "view",
+      "description": "View payment analytics dashboard",
+      "ga4Event": "payment_analytics_viewed",
+      "parameters": ["date_range", "metrics"],
+      "priority": "medium"
     }
   },
-  "categories": {
-    "critical": {
-      "description": "CTA che influenzano direttamente la conversione o il revenue",
-      "examples": ["onboarding-complete", "checkout-complete", "subscription-start"]
+  "eventMapping": {
+    "onboarding_step_next": {
+      "required": ["step"],
+      "optional": ["completion_time", "step_name"]
     },
-    "high": {
-      "description": "CTA importanti per l'engagement e la user experience",
-      "examples": ["add-to-cart", "ai-chat-start", "login-start"]
+    "onboarding_step_back": {
+      "required": ["step"],
+      "optional": ["step_name"]
     },
-    "medium": {
-      "description": "CTA che supportano l'engagement e le funzionalità secondarie",
-      "examples": ["product-view", "mission-start", "subscription-manage"]
+    "onboarding_complete": {
+      "required": ["dogs_count"],
+      "optional": ["completion_time", "user_type"]
     },
-    "low": {
-      "description": "CTA di navigazione e funzionalità accessorie",
-      "examples": ["nav-home", "badge-claim", "logout"]
+    "dog_created": {
+      "required": ["dog_id", "breed"],
+      "optional": ["age_group", "weight_category", "health_conditions"]
+    },
+    "notification_prefs_update": {
+      "required": ["channels", "categories"],
+      "optional": ["quiet_hours_enabled"]
+    },
+    "address_add": {
+      "required": ["label"],
+      "optional": ["address_type", "is_default"]
+    },
+    "address_set_default": {
+      "required": ["address_id"],
+      "optional": ["previous_default"]
+    },
+    "payment_method_attached": {
+      "required": ["brand", "last4"],
+      "optional": ["is_default", "setup_intent_id"]
+    },
+    "dog_update_weight": {
+      "required": ["dog_id", "weight"],
+      "optional": ["weight_change", "days_since_last"]
+    },
+    "vaccine_added": {
+      "required": ["dog_id", "vaccine_type"],
+      "optional": ["next_due", "veterinarian_id"]
+    },
+    "vet_linked": {
+      "required": ["dog_id", "vet_id"],
+      "optional": ["role", "clinic_name"]
+    },
+    "order_view": {
+      "required": ["order_id"],
+      "optional": ["status", "total_value", "item_count"]
+    },
+    "order_issue_reported": {
+      "required": ["order_id", "issue_type"],
+      "optional": ["description_length", "has_photos"]
+    },
+    "subscription_date_change": {
+      "required": ["subscription_id", "days_delta"],
+      "optional": ["new_delivery_date", "reason"]
+    },
+    "subscription_address_override": {
+      "required": ["subscription_id", "address_id"],
+      "optional": ["one_time"]
+    },
+    "subscription_skip": {
+      "required": ["subscription_id"],
+      "optional": ["next_delivery_date", "reason"]
+    },
+    "inbox_open": {
+      "required": ["unread_count"],
+      "optional": ["last_visit"]
+    },
+    "notification_click": {
+      "required": ["channel", "template_key"],
+      "optional": ["message_id", "time_since_received"]
+    },
+    "chat_message_sent": {
+      "required": ["thread_id"],
+      "optional": ["message_length", "has_attachments", "agent_type"]
+    },
+    "mission_completed": {
+      "required": ["mission_id", "xp"],
+      "optional": ["completion_time", "difficulty", "dog_id"]
+    },
+    "reward_redeemed": {
+      "required": ["reward_id"],
+      "optional": ["reward_type", "value", "order_id"]
+    },
+    "reminder_set": {
+      "required": ["dog_id", "reminder_type", "channel"],
+      "optional": ["frequency", "time_of_day"]
+    },
+    "subscribe_click": {
+      "required": ["sku"],
+      "optional": ["dog_id", "cadence_days", "product_name", "location"]
+    },
+    "navigation_click": {
+      "required": ["link_text"],
+      "optional": ["link_url", "section", "tab_name"]
+    },
+    "login": {
+      "required": ["method"],
+      "optional": ["user_id"]
+    },
+    "sign_up": {
+      "required": ["method"],
+      "optional": ["user_id"]
+    },
+    "logout": {
+      "required": [],
+      "optional": ["user_id", "session_duration"]
+    },
+    "profile_edit_start": {
+      "required": ["section"],
+      "optional": ["user_id"]
+    },
+    "profile_update": {
+      "required": ["fields_updated"],
+      "optional": ["user_id"]
+    },
+    "gdpr_consent_update": {
+      "required": ["consent_types"],
+      "optional": ["user_id"]
+    },
+    "gdpr_data_export": {
+      "required": ["export_options"],
+      "optional": ["user_id"]
+    },
+    "account_delete_intent": {
+      "required": [],
+      "optional": ["user_id", "reason"]
+    },
+    "search": {
+      "required": ["search_term"],
+      "optional": ["filters", "result_count", "search_category"]
+    },
+    "view_item": {
+      "required": ["product_id"],
+      "optional": ["category", "brand", "price", "currency"]
+    },
+    "add_to_cart": {
+      "required": ["product_id", "quantity"],
+      "optional": ["format_id", "price", "currency", "subscription_frequency"]
+    },
+    "view_cart": {
+      "required": ["item_count"],
+      "optional": ["total_value", "currency"]
+    },
+    "remove_from_cart": {
+      "required": ["product_id"],
+      "optional": ["quantity", "price", "currency"]
+    },
+    "cart_item_update": {
+      "required": ["product_id", "new_quantity"],
+      "optional": ["old_quantity", "price_difference"]
+    },
+    "cart_clear": {
+      "required": ["item_count"],
+      "optional": ["total_value", "currency"]
+    },
+    "begin_checkout": {
+      "required": ["item_count", "total_value"],
+      "optional": ["currency", "coupon_code"]
+    },
+    "checkout_progress": {
+      "required": ["step"],
+      "optional": ["shipping_method", "payment_method", "address_id"]
+    },
+    "purchase": {
+      "required": ["order_id", "total_value"],
+      "optional": ["item_count", "payment_method", "currency", "coupon_code"]
+    },
+    "order_track": {
+      "required": ["order_id"],
+      "optional": ["current_status", "tracking_number"]
+    },
+    "order_cancel": {
+      "required": ["order_id"],
+      "optional": ["reason", "refund_amount", "currency"]
+    },
+    "order_return_request": {
+      "required": ["order_id"],
+      "optional": ["items", "reason", "return_amount"]
+    },
+    "subscription_create": {
+      "required": ["product_id", "frequency"],
+      "optional": ["discount_percentage", "first_delivery_date"]
+    },
+    "subscription_modify": {
+      "required": ["subscription_id", "field"],
+      "optional": ["old_value", "new_value"]
+    },
+    "subscription_pause": {
+      "required": ["subscription_id"],
+      "optional": ["reason", "pause_duration"]
+    },
+    "subscription_resume": {
+      "required": ["subscription_id"],
+      "optional": ["next_delivery_date"]
+    },
+    "subscription_cancel": {
+      "required": ["subscription_id"],
+      "optional": ["reason", "remaining_value", "currency"]
+    },
+    "payment_method_add": {
+      "required": ["method_type"],
+      "optional": ["is_default", "brand", "last4"]
+    },
+    "payment_method_delete": {
+      "required": ["method_id"],
+      "optional": ["method_type", "brand", "last4"]
+    },
+    "payment_method_set_default": {
+      "required": ["method_id"],
+      "optional": ["method_type", "brand", "last4"]
+    },
+    "discount_apply": {
+      "required": ["code"],
+      "optional": ["discount_amount", "discount_type", "currency"]
+    },
+    "discount_remove": {
+      "required": ["code"],
+      "optional": ["discount_amount", "currency"]
+    },
+    "wishlist_add": {
+      "required": ["product_id"],
+      "optional": ["category", "brand", "price"]
+    },
+    "wishlist_remove": {
+      "required": ["product_id"],
+      "optional": ["category", "brand"]
+    },
+    "review_submit": {
+      "required": ["product_id", "rating"],
+      "optional": ["review_length", "has_photos"]
+    },
+    "filter_apply": {
+      "required": ["filter_type", "filter_value"],
+      "optional": ["result_count", "previous_result_count"]
+    },
+    "sort_change": {
+      "required": ["sort_type"],
+      "optional": ["sort_direction", "previous_sort"]
+    },
+    "payment_intent_created": {
+      "required": ["amount", "currency"],
+      "optional": ["payment_method_type", "customer_id", "fraud_score"]
+    },
+    "payment_method_attached": {
+      "required": ["method_type"],
+      "optional": ["is_default", "brand", "last4", "customer_id"]
+    },
+    "payment_retry_attempted": {
+      "required": ["failure_id", "retry_count"],
+      "optional": ["failure_reason", "new_payment_intent_id", "success"]
+    },
+    "payment_fraud_detected": {
+      "required": ["fraud_score"],
+      "optional": ["reason", "payment_intent_id", "blocked"]
+    },
+    "refund_processed": {
+      "required": ["refund_id", "amount"],
+      "optional": ["payment_intent_id", "reason", "currency"]
+    },
+    "payment_webhook_processed": {
+      "required": ["event_type"],
+      "optional": ["processing_time", "event_id", "success"]
+    },
+    "payment_analytics_viewed": {
+      "required": ["date_range"],
+      "optional": ["metrics", "user_role", "filters"]
+    },
+    "payment_succeeded": {
+      "required": ["payment_intent_id", "amount"],
+      "optional": ["currency", "payment_method_type", "processing_time"]
+    },
+    "payment_failed": {
+      "required": ["payment_intent_id", "failure_code"],
+      "optional": ["failure_message", "amount", "currency"]
+    },
+    "chargeback_created": {
+      "required": ["dispute_id", "amount"],
+      "optional": ["charge_id", "reason", "currency"]
+    },
+    "subscription_payment_succeeded": {
+      "required": ["invoice_id", "amount"],
+      "optional": ["subscription_id", "currency"]
+    },
+    "subscription_payment_failed": {
+      "required": ["invoice_id", "amount"],
+      "optional": ["subscription_id", "currency", "failure_reason"]
     }
+  },
+  "priorities": {
+    "critical": "CTA che influenzano direttamente conversione e revenue",
+    "high": "CTA importanti per engagement e funzionalità core",
+    "medium": "CTA che supportano funzionalità secondarie",
+    "low": "CTA di navigazione e utility"
   },
   "validation": {
     "rules": [
-      "Ogni CTA deve avere un ID univoco",
-      "Ogni CTA deve essere mappato a un evento GA4",
+      "Ogni CTA deve avere un ID univoco con formato pagina.sezione.elemento.azione",
+      "Ogni CTA deve essere mappato a un evento GA4 specifico",
       "I CTA critical e high devono essere testati in E2E",
       "Tutti i CTA devono avere tracking implementato",
       "I CTA devono essere accessibili (WCAG 2.2 AA)"
     ],
-    "required_fields": ["id", "description", "location", "component", "ga4Event", "priority"],
-    "priority_levels": ["critical", "high", "medium", "low"]
-  },
-  "implementation": {
+    "required_fields": ["page", "section", "element", "action", "description", "ga4Event", "priority"],
     "tracking_attribute": "data-cta-id",
-    "ga4_parameter": "cta_id",
-    "validation_script": "npm run validate:cta",
     "coverage_requirement": "100%"
   }
 }
